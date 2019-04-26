@@ -20,7 +20,7 @@ begin
 		if rising_edge(clk) then
 			if sresetn = '0' or power = '0' then
 				output <= (others => '0');
-			elsif power = '1' then
+			else
 				output <= input(39) & input(7)  & input(47) & input(15) & input(55) &
 					  input(23) & input(63) & input(31) & input(38) & input(6)  &
 					  input(46) & input(14) & input(54) & input(22) & input(62) &
