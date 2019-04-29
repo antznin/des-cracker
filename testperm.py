@@ -1,6 +1,6 @@
 import sys
-input = sys.argv[1]
-input = list(reversed(input))
+input1 = sys.argv[1]
+input2 = sys.argv[2]
 
 def C(input):
     output = input[56] + input[48] + input[40] + input[32] + input[24] + input[16] + input[8] + input[0] + input[57] + \
@@ -15,5 +15,14 @@ def D(input):
     input[28] + input[20] + input[12] + input[4] + input[27] + input[19] + input[11] + input[3]
     return output
 
-print(C(input))
-print(D(input))
+def pc2(inp):
+    output = \
+        inp[13] + inp[16] + inp[10] + inp[23] + inp[0] + inp[4] + inp[2] + inp[27] +\
+        inp[14] + inp[5] + inp[20] + inp[9] + inp[22] + inp[18] + inp[11] + inp[3] + inp[25] +\
+        inp[7] + inp[15] + inp[6] + inp[26] + inp[19] + inp[12] + inp[1] + inp[40] + inp[51]+\
+        inp[30] + inp[36] + inp[46] + inp[54] + inp[29] + inp[39] + inp[50] + inp[44] + \
+        inp[32] + inp[47] + inp[43] + inp[48] + inp[38] + inp[55] + inp[33] + inp[52] + \
+        inp[45] + inp[41] + inp[49] + inp[35] + inp[28] + inp[31]
+    return output
+
+print(pc2(list(reversed(input1 + input2))))

@@ -7,7 +7,7 @@ entity pc2 is
 		sresetn:   in  std_ulogic;
 		pc2_in1:   in  std_ulogic_vector(27 downto 0);
 		pc2_in2:   in  std_ulogic_vector(27 downto 0);
-       		pc2_out1:  out std_ulogic_vector(48 downto 0);
+       		pc2_out1:  out std_ulogic_vector(47 downto 0);
 		power:     in  std_ulogic -- active or not
 	);
 end entity pc2;	
