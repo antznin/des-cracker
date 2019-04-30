@@ -11,8 +11,8 @@ package des_pkg is
 	
 
 	-- Initial and final permutations
-	function ip(w : w32)  return w32;
-	function iip(w : w32) return w32;
+	function ip(w : w64)  return w64;
+	function iip(w1 : w32;w2 : w32) return w64;
 
 	-- Feistel function
 	function p(w : w32)           return w32;
