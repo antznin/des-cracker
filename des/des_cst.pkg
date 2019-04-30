@@ -1,0 +1,4 @@
+type tab is array (64 downto 1 of positive);
+
+constant ip_tab : tab := (
+	 
