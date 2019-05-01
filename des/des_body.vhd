@@ -4,7 +4,7 @@ use std.env.all;
 use work.des_types.all;
 use work.des_cst.all;
 
-package body des_body is
+package body des_pkg is
 
 function ip(w : w64)  return w64 is
   variable output : w64;
@@ -38,4 +38,32 @@ function left_shift (w:w28; amount : natural) return w28 is
 	   end if;
 end left_shift;
 
-end package body des_body;
+
+function pc1 (w : w56) return w56 is
+           variable output1 : w28;
+           variable output2 : w28;
+           variable c : natural;
+	   begin
+	   for i in 1 to 28 loop
+             output1(i) := w(pc1_table(i));
+	   end loop;
+           c:=28;
+           for i in 1 to 28 loop
+             c:=28+i;
+             output2(i) := w(pc1_table(c));
+	   end loop;
+	   return output1&output2;
+end pc1;	
+
+
+function pc2(w1 : w28; w2 : w28) return w48 is
+           variable input : w56;
+           variable output : w48;
+	   begin
+           for i in 1 to 48 loop
+             output(i) := input(pc1_table(i));
+	   end loop;
+	   return output;
+end pc2;
+
+end package body des_pkg;
