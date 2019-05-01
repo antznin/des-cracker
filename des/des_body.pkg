@@ -1,6 +1,7 @@
 use std.env.all;
-use work.des_types.all;
+
 use work.des_cst.all;
+
 library ieee;
 use ieee.numeric_std.all;
 use ieee.std_logic_1164.all;
@@ -23,6 +24,7 @@ begin
 	for i in 1 to 48 loop
 		output(i) := w(e_table(i));
 	end loop;
+	return output;
 end e;
 
 function s(w : w48) return w32 is
