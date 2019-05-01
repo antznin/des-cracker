@@ -1,6 +1,6 @@
 library ieee;
 use ieee.std_logic_1164.all;
---use des_types_pkg.all;
+
 
 package des_cst is
 

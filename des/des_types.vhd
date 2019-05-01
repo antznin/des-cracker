@@ -1,7 +1,7 @@
 library ieee;
 use ieee.std_logic_1164.all;
 
-package des_pkg is
+package des_types is
 
 	subtype w28 is std_ulogic_vector (28 downto 1);
 	subtype w32 is std_ulogic_vector (32 downto 1);
@@ -14,11 +14,7 @@ package des_pkg is
 	function ip(w : w64)  return w64;
 	function iip(w1 : w32;w2 : w32) return w64;
 
-	-- Feistel function
-	function p(w : w32)           return w32;
-	function s(w : w48)           return w32;
-	function e(w : w32)           return w48;
-	function f(r : w32; rk : w48) return w48;
+
 	
 	-- Key schedule
 	function left_shift(w : w28; amount : natural)  return w28;
@@ -27,6 +23,6 @@ package des_pkg is
 	function pc2(w1 : w28; w2 : w28)                return w48;
 
 	-- Main function
-	function des (p : w64; k : w56) return w64;
+	 function des (p : w64; k : w56) return w64;
 
-end package des_pkg;
+end package des_types;
