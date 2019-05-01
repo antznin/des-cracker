@@ -1,18 +1,11 @@
 use std.env.all;
 use work.des_types.all;
 use work.des_cst.all;
+library ieee;
+use ieee.numeric_std.all;
+use ieee.std_logic_1164.all;
 
 package body des_pkg is
--- function left_shift (w:w28; amount : natural) return w28 is
--- 	   begin
---          if amount=2 then
---             return w28(28 to 3) & w28 (2 to 2);
---          elsif amount=1 then
---             return w28(2 to 28) & w28(1);
---          else
---             assert false report 'ERROR' severity failure;
---          end if;
--- end left_shift;
 
 -- Feistel functions
 function p(w : w32) return w32 is
@@ -23,5 +16,32 @@ begin
 	end loop;	
 	return output;
 end p;
+
+function e(w : w32) return w48 is
+	variable output: w48;
+begin
+	for i in 1 to 48 loop
+		output(i) := w(e_table(i));
+	end loop;
+end e;
+
+function s(w : w48) return w32 is
+	variable output:     w32;
+	variable sw:         w6;
+	variable row, col:   integer;
+	variable curr_table: table64_t;
+	variable out_s:      w4;
+begin
+	output := (others => '0');
+	for i in 1 to 8 loop
+		curr_table := s_table(i);
+		sw         := w(48-6*(i-1) downto 49-6*i);
+		row        := to_integer(unsigned'(sw(6) & sw(1)));
+		col        := to_integer(unsigned'(sw(5) & sw(4) & sw(3) & sw(2)));
+		out_s      := std_ulogic_vector(to_unsigned(curr_table(row * 16 + col), out_s'length));
+		output(32-4*(i-1) downto 33-4*i) := out_s;
+	end loop;
+	return output;
+end s;
 
 end package body des_pkg;
