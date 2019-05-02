@@ -21,8 +21,8 @@ package des_pkg is
 	function p(w : w32)           return w32;
 	function s(w : w48)           return w32;
 	function e(w : w32)           return w48;
-	--function f(r : w32; rk : w48) return w48;
-	--
+	function f(r : w32; rk : w48) return w32;
+	
 	---- Key schedule
 	--function left_shift(w : w28; amount : natural)  return w28;
 	--function right_shift(w : w28; amount : natural) return w28;

@@ -46,4 +46,9 @@ begin
 	return output;
 end s;
 
+function f(r : w32; rk : w48) return w32 is
+begin
+	return p(s(e(r) xor rk));
+end f;
+
 end package body des_pkg;

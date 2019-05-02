@@ -1,5 +1,7 @@
 use std.env.all;
 
+use work.des_pkg.all;
+
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
@@ -11,7 +13,8 @@ entity feistel_sim is
 	port (
 		e_out: out w48;
 		s_out: out w32;
-		p_out: out w32
+		p_out: out w32;
+		f_out: out w32
 	     );
 end entity feistel_sim;
 
@@ -21,6 +24,8 @@ architecture sim of feistel_sim is
 	signal s_in: w48;
 	signal e_in: w32;
 	signal p_in: w32;
+	signal f_in: w32;
+	signal rk:   w48;
 
 begin
 
@@ -39,15 +44,27 @@ begin
 			e_out <= e(e_in);
 			p_out <= p(p_in);
 			s_out <= s(s_in);
+			f_out <= f(f_in, rk);
 		end if;
 	end process;
 	
 	process
 	begin
 		p_in <= (others => '0');
+
 		s_in <= (others => '0');
 		-- Expected : 11101111101001110010110001001101
+
 		e_in <= (others => '0');
+
+		f_in <= (others => '0');
+		rk   <= (others => '0');
+		-- Expected : 11101111101001110010110001001101
+		for i in 1 to 10 loop
+			wait until rising_edge(clk);
+		end loop;
+		p_in <= s_out;
+		-- Compare p and f output. Should be the same
 		for i in 1 to 10 loop
 			wait until rising_edge(clk);
 		end loop;
@@ -58,9 +75,6 @@ begin
 		s_in <= "101001001001101001001001101001001001101001001001";
 		-- In : 101001 001001 101001 001001 101001 001001 101001 001001
 		-- Got :  0100   1111   0110   0110   0001   0111   0001   1010
-		for i in 1 to 10 loop
-			wait until rising_edge(clk);
-		end loop;
 		finish;
 	end process;
 	
