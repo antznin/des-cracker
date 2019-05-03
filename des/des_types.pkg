@@ -13,10 +13,9 @@ package des_pkg is
 	subtype w64 is std_ulogic_vector (64 downto 1);
 	
 
-	---- Initial and final permutations
-	--function ip(w : w32)  return w32;
-	--function iip(w : w32) return w32;
-
+	-- Initial and final permutations
+	function ip(w : w64)  return w64;
+	function iip(w1 : w32;w2 : w32) return w64;
 	---- Feistel function
 	function p(w : w32)           return w32;
 	function s(w : w48)           return w32;
@@ -24,10 +23,10 @@ package des_pkg is
 	function f(r : w32; rk : w48) return w32;
 	
 	---- Key schedule
-	--function left_shift(w : w28; amount : natural)  return w28;
-	--function right_shift(w : w28; amount : natural) return w28;
-	--function pc1(w : w64)                           return w56;
-	--function pc2(w1 : w28; w2 : w28)                return w48;
+	function left_shift(w : w28; amount : natural)  return w28;
+	function right_shift(w : w28; amount : natural) return w28;
+	function pc1(w : w64)                           return w56;
+	function pc2(w1 : w28; w2 : w28)                return w48;
 
 	---- Main function
 	--function des (p : w64; k : w56) return w64;
