@@ -10,8 +10,7 @@ function ip(w : w64)  return w64 is
            variable output : w64;
 	   begin
 	   for i in 1 to 64 loop 
-             output(i) := w(ip_table(i));
-         
+             output(i) := w(ip_table(i));         
 	   end loop;
 	   return output;
 end ip;	  
@@ -50,7 +49,7 @@ function right_shift (w:w28; amount : natural) return w28 is
 end right_shift;
 
 
-function pc1 (w : w56) return w56 is
+function pc1 (w : w64) return w56 is
            variable output1 : w28;
            variable output2 : w28;
            variable c : natural;
@@ -70,7 +69,8 @@ end pc1;
 function pc2(w1 : w28; w2 : w28) return w48 is
            variable input : w56;
            variable output : w48;
-	   begin
+           begin
+           input := w1&w2; 
            for i in 1 to 48 loop
              output(i) := input(pc2_table(i));
 	   end loop;

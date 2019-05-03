@@ -19,7 +19,7 @@ package des_pkg is
 	-- Key schedule
 	function left_shift(w : w28; amount : natural)  return w28;
 	function right_shift(w : w28; amount : natural) return w28;
-	function pc1(w : w56)                           return w56;
+	function pc1(w : w64)                           return w56;
 	function pc2(w1 : w28; w2 : w28)                return w48;
 
 	-- Main function
