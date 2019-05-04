@@ -79,6 +79,28 @@ function pc2(w1 : w28; w2 : w28) return w48 is
 	   return output;
 end pc2;
 
+function ks(k: w64) return key_table is
+	variable k_t: key_table; -- Output key table 
+	variable k56: w56;
+	variable c, d: w28;
+	variable amount: natural;
+begin
+	k56 := pc1(k);
+	c   := k56(56 downto 29);
+	d   := k56(28 downto 1);
+	for i in 1 to 16 loop
+		if i = 1 or i = 2 or i = 9 or i = 16 then
+			amount := 1;
+		else
+			amount := 2;
+		end if;
+		c := left_shift(c, amount);
+		d := left_shift(d, amount);
+		k_t(i) := pc2(c, d);
+	end loop;
+	return k_t;
+end ks;
+
 -- Feistel functions
 function p(w : w32) return w32 is
 	variable output: w32;
@@ -124,17 +146,19 @@ end f;
 
 -- DES main function
 function des (p : w64; k : w56) return w64 is
-	variable c: w64;
 	variable l, r: w32;
+	variable k_t: key_table;
+	variable p_int: w64; -- internal p
 begin
-	p <= ip(p);
-	l <= p(64 downto 33);
-	r <= p(32 downto 1);
+	p_int := p;
+	p_int := ip(p_int);
+	l := p(64 downto 33);
+	r := p(32 downto 1);
 	for i in 1 to 16 loop
-		l <= r;
-		r <= l xor f(r, k_t(i));
+		l := r;
+		r := l xor f(r, k_t(i));
 	end loop;	
-	c <= iip(r & l);
+	--return iip(r & l);
 end des;
 
 
