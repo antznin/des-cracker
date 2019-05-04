@@ -13,7 +13,8 @@ entity des_ks_sim is
 	port(
                 pc1_out : out std_ulogic_vector(56 downto 1);
                 pc2_out : out std_ulogic_vector(48 downto 1);
-		left_out: out std_ulogic_vector(28 downto 1)
+		left_out: out std_ulogic_vector(28 downto 1);
+                key_out : out key_table
 	);
 end entity des_ks_sim;
 
@@ -24,7 +25,22 @@ architecture sim of des_ks_sim is
           signal pc2_in : w48;
           signal pc2_in1 : w28;
           signal pc2_in2 : w28;
+          signal key_in : w64;
+          
        begin
+       process
+         begin
+           key_in <= (others =>'0');
+
+        --   for i in 1 to 18 loop
+             key_in <= (1 =>'1', others =>'0');
+             wait for 10 ns;
+        --   end loop;
+       end process;
+
+       key_out <= ks(key_in); -- essayer de le rentrer a l'interieur 
+           
+   
 	process
           begin
             left_in <= (others =>'0');
@@ -32,16 +48,19 @@ architecture sim of des_ks_sim is
             pc2_in <= (others =>'0');
             pc2_in1 <= (others =>'0');
             pc2_in2 <= (others =>'0');
+ 
 
             wait for 10 ns;
           
             left_in<= ( 28 downto 20 =>'1', others =>'0');-- 28
-            pc1_in <= "1111111111111111111111111111111100000000000000000000000000000000";
-            pc2_in1  <= "1111000011110000111100001111";--(28 downto 26 => '0', others =>'1'); --28
-            pc2_in2 <= "1111000011110000111100001111";--(28 downto 26 => '1', others =>'0'); --28
-            
+            pc1_in <= (1 =>'1', others =>'0');
+          
+        --    pc2_in1  <= "1111000011110000111100001111";
+        --    pc2_in2 <= "1111000011110000111100001111";
+            pc2_in1 <= (22 => '1',others => '0');
+            pc2_in2 <= (others =>'0');
 
-            wait for 10 ns;
+            wait for 10 ns; -- essayer de l'enlever
             
 
 	      	    left_out <= left_shift(left_in,2);
