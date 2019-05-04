@@ -122,4 +122,20 @@ begin
 	return p(s(e(r) xor rk));
 end f;
 
+-- DES main function
+function des (p : w64; k : w56) return w64 is
+	variable c: w64;
+	variable l, r: w32;
+begin
+	p <= ip(p);
+	l <= p(64 downto 33);
+	r <= p(32 downto 1);
+	for i in 1 to 16 loop
+		l <= r;
+		r <= l xor f(r, k_t(i));
+	end loop;	
+	c <= iip(r & l);
+end des;
+
+
 end package body des_pkg;
