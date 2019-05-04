@@ -18,7 +18,7 @@ function ip(w : w64)  return w64 is
 	   return output;
 end ip;	  
 
-function iip(w1 : w32; w2:w32)  return w64 is
+function iip(w1 : w32; w2 : w32)  return w64 is
            variable input : w64;
            variable output : w64;
 	   begin
@@ -145,21 +145,25 @@ begin
 end f;
 
 -- DES main function
-function des (p : w64; k : w56) return w64 is
-	variable l, r: w32;
-	variable k_t: key_table;
+function des (p : w64; k : w64) return w64 is
+	variable l, r, l_tmp, r_tmp:  w32;
+	variable k_t:   key_table;
 	variable p_int: w64; -- internal p
 begin
+	k_t   := ks(k);
 	p_int := p;
 	p_int := ip(p_int);
-	l := p(64 downto 33);
-	r := p(32 downto 1);
+	l_tmp := p(64 downto 33); -- L0
+	r_tmp := p(32 downto 1);  -- R0
 	for i in 1 to 16 loop
-		l := r;
-		r := l xor f(r, k_t(i));
+		l     := r_tmp;
+		r     := l_tmp xor f(r_tmp, k_t(i));
+		l_tmp := l;
+		r_tmp := r;
 	end loop;	
-	--return iip(r & l);
+	-- r := l_tmp xor f(r_tmp, k_t(16));
+	-- l := r_tmp;
+	return iip(r, l);
 end des;
-
 
 end package body des_pkg;
