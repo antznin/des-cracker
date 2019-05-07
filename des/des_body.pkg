@@ -72,8 +72,8 @@ function pc2(w1 : w28; w2 : w28) return w48 is
 	   return output;
 end pc2;
 
-function ks(k: w64) return key_table is
-	variable k_t: key_table; -- Output key table 
+function ks(k: w64) return rkey_table is
+	variable k_t: rkey_table; -- Output key table 
 	variable k56: w56;
 	variable c, d: w28;
 	variable amount: natural;
@@ -143,7 +143,7 @@ function des (p : w64; k : w64; encipher: boolean) return w64 is
 --	* true : encipher the text
 -- 	* false : decipher the text
 	variable l, r, l_tmp, r_tmp:  w32;
-	variable k_t:   key_table;
+	variable k_t:   rkey_table;
 	variable p_inv: w64; -- internal p
 	variable j: natural;
 begin

@@ -14,7 +14,7 @@ entity des_ks_sim is
                 pc1_out : out std_ulogic_vector(56 downto 1);
                 pc2_out : out std_ulogic_vector(48 downto 1);
 		left_out: out std_ulogic_vector(28 downto 1);
-                key_out : out key_table
+                key_out : out rkey_table
 	);
 end entity des_ks_sim;
 
