@@ -23,6 +23,14 @@ architecture sim of des_sim is
 	signal k:       w64;
 	signal des_in:  w64; -- Plaintext
 
+	type w_table is array(natural range <>) of w64;
+
+	signal plaintexts: w_table(1 to 4) := (x"f0f0f0f0f0f0f0f0", x"0f0f0f0f0f0f0f0f",
+	    x"ffffffff00000000", x"00000000ffffffff");
+	signal keys:       w_table(1 to 4) := (x"f0f0f0f0f0f0f0f0", x"0f0f0f0f0f0f0f0f",
+	    x"ffffffff00000000", x"00000000ffffffff");
+
+
 begin
 
 	-- the clock
@@ -49,15 +57,14 @@ begin
 		for i in 1 to 10 loop
 			wait until rising_edge(clk);
 		end loop;
-		des_in <= x"8787878787878787";
-		k      <= x"0E329232EA6D0D73";
-		for i in 1 to 10 loop
-			wait until rising_edge(clk);
-		end loop;
-		k      <= x"0000000000000001";
-		des_in <= x"F0F0F0F0F0F0F0F0";
-		for i in 1 to 10 loop
-			wait until rising_edge(clk);
+		for i in 1 to keys'length loop
+			for j in 1 to plaintexts'length loop
+				des_in <= plaintexts(j);
+				k <= keys(i);
+				for i in 1 to 5 loop
+					wait until rising_edge(clk);
+				end loop;
+			end loop;
 		end loop;
 		finish;
 	end process;
