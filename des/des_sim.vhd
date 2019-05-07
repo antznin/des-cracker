@@ -49,10 +49,13 @@ begin
 		for i in 1 to 10 loop
 			wait until rising_edge(clk);
 		end loop;
-		des_in <=
-	       x"8787878787878787";
-		k <=
-	       x"0E329232EA6D0D73";
+		des_in <= x"8787878787878787";
+		k      <= x"0E329232EA6D0D73";
+		for i in 1 to 10 loop
+			wait until rising_edge(clk);
+		end loop;
+		k      <= x"0000000000000001";
+		des_in <= x"F0F0F0F0F0F0F0F0";
 		for i in 1 to 10 loop
 			wait until rising_edge(clk);
 		end loop;
@@ -60,4 +63,3 @@ begin
 	end process;
 	
 end architecture sim;
-

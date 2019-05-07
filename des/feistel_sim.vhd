@@ -75,6 +75,14 @@ begin
 		s_in <= "101001001001101001001001101001001001101001001001";
 		-- In : 101001 001001 101001 001001 101001 001001 101001 001001
 		-- Got :  0100   1111   0110   0110   0001   0111   0001   1010
+		for i in 1 to 10 loop
+			wait until rising_edge(clk);
+		end loop;
+		f_in <= x"10101010";
+		rk   <= x"101010101010";
+		for i in 1 to 10 loop
+			wait until rising_edge(clk);
+		end loop;
 		finish;
 	end process;
 	
