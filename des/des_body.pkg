@@ -33,9 +33,9 @@ end iip;
 function left_shift (w:w28; amount : natural) return w28 is
   	   begin
 	   if amount=2 then
-	      return w(26 downto 1) & w(28 downto 27);
+	      return w(3 to 28) & w(1 to 2);
 	   elsif amount=1 then
-	      return w(27 downto 1)&w(28);
+	      return w(2 to 28) & w(1);
 	   else
 	      assert false report "ERROR" severity failure;
 	   end if;
@@ -44,9 +44,9 @@ end left_shift;
 function right_shift (w:w28; amount : natural) return w28 is
   	   begin
 	   if amount=2 then
-	      return w(2 downto 1) & w(28 downto 3);
+	      return w(27 to 28) & w(1 to 26);
 	   elsif amount=1 then
-	      return w(1) & w(28 downto 2);
+	      return w(28) & w(1 to 27);
 	   else
 	      assert false report "ERROR" severity failure;
 	   end if;
@@ -65,7 +65,7 @@ function pc2(w1 : w28; w2 : w28) return w48 is
            variable input : w56;
            variable output : w48;
            begin
-           input := w1&w2; 
+           input := w1 & w2; 
            for i in 1 to 48 loop
              output(i) := input(pc2_table(i));
 	   end loop;
@@ -79,8 +79,8 @@ function ks(k: w64) return key_table is
 	variable amount: natural;
 begin
 	k56 := pc1(k);
-	c   := k56(56 downto 29);
-	d   := k56(28 downto 1);
+	c   := k56(1 to 28);
+	d   := k56(29 to 56);
 	for i in 1 to 16 loop
 		if i = 1 or i = 2 or i = 9 or i = 16 then
 			amount := 1;
@@ -123,11 +123,11 @@ begin
 	output := (others => '0');
 	for i in 1 to 8 loop
 		curr_table := s_table(i);
-		sw         := w(48-6*(i-1) downto 49-6*i);
-		row        := to_integer(unsigned'(sw(6) & sw(1)));
-		col        := to_integer(unsigned'(sw(5) & sw(4) & sw(3) & sw(2)));
+		sw         := w(6*(i-1) + 1 to 6*i);
+		row        := to_integer(unsigned'(sw(1) & sw(6)));
+		col        := to_integer(unsigned'(sw(2) & sw(3) & sw(4) & sw(5)));
 		out_s      := std_ulogic_vector(to_unsigned(curr_table(row * 16 + col), out_s'length));
-		output(32-4*(i-1) downto 33-4*i) := out_s;
+		output(4*(i-1) + 1 to 4*i) := out_s;
 	end loop;
 	return output;
 end s;
@@ -149,8 +149,8 @@ function des (p : w64; k : w64; encipher: boolean) return w64 is
 begin
 	k_t   := ks(k);
 	p_inv := ip(p);
-	l_tmp := p_inv(64 downto 33); -- L0
-	r_tmp := p_inv(32 downto 1);  -- R0
+	l_tmp := p_inv(1 to 32); -- L0
+	r_tmp := p_inv(33 to 64);  -- R0
 	for i in 1 to 16 loop
 		if not encipher then
 			j := 17 - i;
@@ -162,8 +162,6 @@ begin
 		l_tmp := l;
 		r_tmp := r;
 	end loop;	
-	-- r := l_tmp xor f(r_tmp, k_t(16));
-	-- l := r_tmp;
 	return iip(r, l);
 end des;
 
