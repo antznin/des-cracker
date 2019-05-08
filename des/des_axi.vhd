@@ -53,7 +53,8 @@ architecture rtl of des_cracker is
 	signal k_local:   w56; -- current secret key, BA: 0x018
 	signal k1_local:  w56; -- found secret key, BA: 0x020
 
-        signal crack_valid : std_ulogic;
+        signal crack_wvalid : std_ulogic;
+        signal crack_rvalid : std_ulogic;
 
 
 type states is (idle, waiting);
@@ -109,13 +110,14 @@ begin
                                                         and s0_axi_awaddr <= x"013") then
                                                         s0_axi_bresp <= b"00"; -- OKAY
                                                         k0_local(1 to 32) <= s0_axi_wdata;
-                                                        crack_valid<='0';
+                                                        crack_wvalid<='0';
                                         
                                                         elsif (s0_axi_awaddr >= x"014"
                                                         and s0_axi_awaddr <= x"017") then
                                                         s0_axi_bresp <= b"00"; -- OKAY
-                                                        k0_local(33 to 56) <= s0_axi_wdata;
-                                                        crack_valid<='1';
+                                                        k0_local(33 to 56) <= s0_axi_wdata(31 downto 8);
+-- je ne prends pas les derniers bits de wdata
+                                                        crack_wvalid<='1';
                                         
                                                         elsif (s0_axi_awaddr >= x"018" 
                                                         and s0_axi_awaddr <= x"027") then
@@ -176,7 +178,7 @@ process(aclk)
                                                         elsif (s0_axi_araddr >= x"010"
                                                         and s0_axi_araddr <= x"013") then
                                                         s0_axi_rresp <= b"00"; -- OKAY
-                                                        s0_axi_rdata <= k0(1 to 31);  
+                                                        s0_axi_rdata <= k0(1 to 32);  
 
                                                         elsif (s0_axi_araddr >= x"014"
                                                         and s0_axi_araddr <= x"017") then
@@ -187,11 +189,13 @@ process(aclk)
                                                         and s0_axi_araddr <= x"01B") then
                                                         s0_axi_rresp <= b"00"; -- OKAY
                                                         s0_axi_rdata <= k(1 to 32);
-
+                                                        crack_rvalid<='1';
+                                                        
                                                         elsif (s0_axi_araddr >= x"01C"
                                                         and s0_axi_araddr <= x"01F") then
                                                         s0_axi_rresp <= b"00"; -- OKAY
                                                         s0_axi_rdata <="00000000"& k(33 to 56);
+                                                        crack_rvalid<='0';
 
                                                         elsif (s0_axi_araddr >= x"020"
                                                         and s0_axi_araddr <= x"023") then
@@ -235,19 +239,20 @@ process
          p <= p_local;
          c  <= c_local;
          k0  <= k0_local;
+         k<=k0;
          case state_cr is
            when running => 
-           --  k<=;  -- A GENERER
+             k<=kg(k); -- k vaudra k+1 seulement a la fin du process
              if c=des(p,k, true) then
                k1 <= k;
                -- IRQ A REGARDER
-             elsif crack_valid = '1' then
+             elsif crack_wvalid = '1' and crack_rvalid='1' then
                state_cr <= running;
-             elsif crack_valid='0' then
+             elsif crack_wvalid='0' or crack_rvalid='0' then
                 state_cr <= frozen;
              end if;
            when frozen =>
-              if crack_valid = '1' then
+              if crack_wvalid = '1' and crack_rvalid='1' then
                 state_cr <= running;
               else
                 state_cr <= frozen;
