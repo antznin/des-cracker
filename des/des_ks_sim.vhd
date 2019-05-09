@@ -36,6 +36,9 @@ architecture sim of des_ks_sim is
              key_in <= (1 =>'1', others =>'0');
              wait for 10 ns;
         --   end loop;
+	     key_in <= x"f0f0f0f0f0f0f0f0";
+	     wait for 10 ns;
+	     finish;
        end process;
 
        key_out <= ks(key_in); -- essayer de le rentrer a l'interieur 

@@ -12,7 +12,7 @@ use work.des_pkg.all;
 entity des_sim is
 	port (
 		des_out_true:   out w64; -- Ciphertext
-		des_out_false:  out w64 -- Ciphertext
+		des_out_false:  out w64  -- Plaintext
 	     );
 end entity des_sim;
 
