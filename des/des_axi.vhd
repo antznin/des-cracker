@@ -54,9 +54,9 @@ architecture rtl of des_cracker is
 	signal k1_local:  w56; -- found secret key, BA:    0x 020
 
 	signal crack_wvalid : std_ulogic; -- Set to '1' when receiving valid data on write
-					  -- channel address
-        signal crack_rvalid : std_ulogic; -- Set to '1' when receiving valid data on read
-					  -- channel address 
+									  -- channel address
+    signal crack_rvalid : std_ulogic; -- Set to '1' when receiving valid data on read
+									  -- channel address 
 
 
 type states is (idle, waiting);
@@ -244,28 +244,28 @@ begin
      			k  <= k0;
      			case state_cr is
      				when running => 
-		 			k <= kg(k); -- k vaudra k+1 seulement a la fin du process
-		 			if c=des(p,k, true) then
-		 				k1 <= k;
-		 				-- IRQ A REGARDER
-		 			elsif crack_wvalid = '1' and crack_rvalid='1' then
-		 				state_cr <= running;
-		 			elsif crack_wvalid='0' or crack_rvalid='0' then
-		 				 state_cr <= frozen;
-		 			end if;
+		 				k <= kg(k); -- k vaudra k+1 seulement a la fin du process
+		 				if c=des(p,k, true) then
+		 					k1 <= k;
+		 					-- IRQ A REGARDER
+							irq <= '1';
+		 				elsif crack_wvalid = '1' and crack_rvalid='1' then
+		 					state_cr <= running;
+		 				elsif crack_wvalid='0' or crack_rvalid='0' then
+		 					state_cr <= frozen;
+		 				end if;
      				when frozen =>
-		 			if crack_wvalid = '1' and crack_rvalid='1' then
-		 			        state_cr <= running;
-		 			else
-		 			        state_cr <= frozen;
-		 			end if;
+		 				if crack_wvalid = '1' and crack_rvalid='1' then
+		 					state_cr <= running;
+		 				else
+		 					state_cr <= frozen;
+		 				end if;
 
      			end case;
      		end if;
      	end if;
-
-end process;
+	end process;
    
 end architecture rtl; 
 
-/* vim: set ts=4 sw=8 tw=90 noet :*/
+-- vim: set ts=4 sw=8 tw=90 noet :
