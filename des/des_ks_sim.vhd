@@ -11,10 +11,11 @@ use work.des_cst.all;
 
 entity des_ks_sim is
 	port(
-                pc1_out : out std_ulogic_vector(56 downto 1);
-                pc2_out : out std_ulogic_vector(48 downto 1);
-		left_out: out std_ulogic_vector(28 downto 1);
-                key_out : out rkey_table
+                pc1_out : out w56;
+                pc2_out : out w48;
+		left_out: out w28;
+                key_out : out rkey_table;
+                k_out : out w56
 	);
 end entity des_ks_sim;
 
@@ -26,6 +27,7 @@ architecture sim of des_ks_sim is
           signal pc2_in1 : w28;
           signal pc2_in2 : w28;
           signal key_in : w64;
+          signal k_in : w56;
           
        begin
        process
@@ -51,7 +53,7 @@ architecture sim of des_ks_sim is
             pc2_in <= (others =>'0');
             pc2_in1 <= (others =>'0');
             pc2_in2 <= (others =>'0');
- 
+            k_in <= (others=>'0');
 
             wait for 10 ns;
           
@@ -61,15 +63,16 @@ architecture sim of des_ks_sim is
         --    pc2_in1  <= "1111000011110000111100001111";
         --    pc2_in2 <= "1111000011110000111100001111";
             pc2_in1 <= (22 => '1',others => '0');
+            k_in <=(1=>'1', others =>'0');
             pc2_in2 <= (others =>'0');
-
             wait for 10 ns; -- essayer de l'enlever
             
 
 	      	    left_out <= left_shift(left_in,2);
                     pc1_out <= pc1(pc1_in);
                     pc2_out <= pc2(pc2_in1, pc2_in2) ;
-            
+
+                      k_out <= kg(k_in);
 
          end process;
        

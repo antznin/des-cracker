@@ -138,7 +138,7 @@ begin
 end f;
 
 -- DES main function
-function des (p : w64; k : w64; encipher: boolean) return w64 is
+function des (p : w64; k : w56; encipher: boolean) return w64 is
 -- encipher :
 --	* true : encipher the text
 -- 	* false : decipher the text
@@ -165,4 +165,18 @@ begin
 	return iip(r, l);
 end des;
 
+
+-- Key Generator
+
+function kg(k:w56) return w56 is
+	 variable k_tmp : w56;
+begin
+	 k_tmp := std_ulogic_vector(unsigned(k) + 1) ;
+	 if k_tmp>=k then -- Inutile ? + ca renvoit pas tjrs de valeur
+	    return k_tmp;
+	 end if;
+end kg;
+
 end package body des_pkg;
+
+/* vim: set ts=8 sw=8 tw=90 noet :*/
