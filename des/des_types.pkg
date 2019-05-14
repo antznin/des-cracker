@@ -11,7 +11,7 @@ package des_pkg is
 	subtype w56 is std_ulogic_vector (1 to 56);
 	subtype w64 is std_ulogic_vector (1 to 64);
 
-	type key_table is array(1 to 16) of w48;
+	type rkey_table is array(1 to 16) of w48;
 
 	-- Initial and final permutations
 	function ip(w : w64)            return w64;
@@ -28,7 +28,7 @@ package des_pkg is
 	function right_shift(w : w28; amount : natural) return w28;
 	function pc1(w : w64)                           return w56;
 	function pc2(w1 : w28; w2 : w28)                return w48;
-	function ks(k: w64)                             return key_table;
+	function ks(k: w64)                             return rkey_table;
 
 	---- Main function
 	function des (p : w64; k : w56; encipher: boolean) return w64;
@@ -38,3 +38,5 @@ package des_pkg is
 
 
 end package des_pkg;
+
+-- vim: set ts=4 sw=4 tw=90 noet :

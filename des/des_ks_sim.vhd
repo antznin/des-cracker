@@ -14,7 +14,7 @@ entity des_ks_sim is
                 pc1_out : out w56;
                 pc2_out : out w48;
 		left_out: out w28;
-                key_out : out key_table;
+                key_out : out rkey_table;
                 k_out : out w56
 	);
 end entity des_ks_sim;
@@ -38,6 +38,9 @@ architecture sim of des_ks_sim is
              key_in <= (1 =>'1', others =>'0');
              wait for 10 ns;
         --   end loop;
+	     key_in <= x"f0f0f0f0f0f0f0f0";
+	     wait for 10 ns;
+	     finish;
        end process;
 
        key_out <= ks(key_in); -- essayer de le rentrer a l'interieur 
