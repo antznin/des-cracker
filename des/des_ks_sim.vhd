@@ -50,7 +50,7 @@ architecture sim of des_ks_sim is
             pc2_in <= (others =>'0');
             pc2_in1 <= (others =>'0');
             pc2_in2 <= (others =>'0');
-            k_in <= (others=>'0');
+
 
             wait for 10 ns;
           
@@ -60,7 +60,6 @@ architecture sim of des_ks_sim is
         --    pc2_in1  <= "1111000011110000111100001111";
         --    pc2_in2 <= "1111000011110000111100001111";
             pc2_in1 <= (22 => '1',others => '0');
-            k_in <=(1=>'1', others =>'0');
             pc2_in2 <= (others =>'0');
             wait for 10 ns; -- essayer de l'enlever
             
@@ -69,9 +68,20 @@ architecture sim of des_ks_sim is
                     pc1_out <= pc1(pc1_in);
                     pc2_out <= pc2(pc2_in1, pc2_in2) ;
 
-                      k_out <= kg(k_in);
+                    
+          end process;
 
-         end process;
+
+          process
+          begin
+           k_in <= ( 56 =>'0', others =>'1');
+           k_out <= kg(k_in);
+           wait for 10 ns;
+           while kg(k_out)> k_out loop
+               k_out <= kg(k_out);
+               wait for 10 ns;
+           end loop;
+          end process; 
        
 end architecture sim;
 

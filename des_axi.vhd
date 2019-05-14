@@ -260,7 +260,6 @@ begin
 		 				else
 		 					state_cr <= frozen;
 		 				end if;
-
      			end case;
      		end if;
      	end if;
@@ -268,4 +267,4 @@ begin
    
 end architecture rtl; 
 
--- vim: set ts=4 sw=8 tw=90 noet :
+-- vim: set ts=4 sw=4 tw=90 noet :
