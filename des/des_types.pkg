@@ -38,3 +38,5 @@ package des_pkg is
 
 
 end package des_pkg;
+
+-- vim: set ts=4 sw=4 tw=90 noet :

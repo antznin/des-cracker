@@ -70,3 +70,5 @@ begin
 	end process;
 	
 end architecture sim;
+
+-- vim: set ts=4 sw=4 tw=90 noet :

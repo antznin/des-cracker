@@ -179,4 +179,4 @@ end kg;
 
 end package body des_pkg;
 
-/* vim: set ts=8 sw=8 tw=90 noet :*/
+-- vim: set ts=4 sw=4 tw=90 noet :
