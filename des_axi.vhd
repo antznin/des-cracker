@@ -53,9 +53,9 @@ architecture rtl of des_cracker is
 	signal k_local:   w56; -- current secret key, BA:  0x 018
 	signal k1_local:  w56; -- found secret key, BA:    0x 020
 
-        signal found : out std_ulogic;
+        signal found :  std_ulogic;
 
-        signal k0_mw : in std_ulogic
+        signal k0_mw : std_ulogic
 
 
 type states is (idle, waiting);

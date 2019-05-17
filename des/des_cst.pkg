@@ -1,9 +1,16 @@
+
+use work.des_pkg.all;
+library ieee;
+use ieee.std_logic_1164.all;
+
 package des_cst is
 
 	-- Unconstrained array
 	type table_t   is array(natural range <>) of natural;
 	type table64_t is array(0 to 63) 	  of natural;
 	type ttable64_t  is array(natural range <>) of table64_t;
+	type table56 is array(natural range <>) of w56;
+	type table_bit is array(natural range <>) of std_ulogic;
 
 	-- IP & IIP constants
 	constant ip_table : table_t(1 to 64) :=
