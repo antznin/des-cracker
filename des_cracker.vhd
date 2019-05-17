@@ -1,49 +1,65 @@
 library ieee;
 use ieee.std_logic_1164.all;
 library unisim;
-use unisim.vcomponents.all;
+--use unisim.vcomponents.all;
+
+use std.env.all;
+
+use ieee.numeric_std.all;
+use ieee.math_real.all;
+use work.des_pkg.all;
+use work.des_cst.all;
 
 entity des_cracker is
+
+        generic (
+          N : integer :=4
+          );
 	port (
 		-- Clock and reset
 		aclk:            in    std_ulogic;
 		aresetn:         in    std_ulogic;
-		-- Read address channel
-		s0_axi_araddr:   in    std_ulogic_vector(11 downto 0);
-		s0_axi_arvalid:  in    std_ulogic;
-		s0_axi_arready:  out   std_ulogic;
-		-- Write address channel
-		s0_axi_awaddr:   in    std_ulogic_vector(11 downto 0);
-		s0_axi_awvalid:  in    std_ulogic;
-		s0_axi_awready:  out   std_ulogic;
-		-- Write data channel
-		s0_axi_wdata:    in    std_ulogic_vector(31 downto 0);
-		s0_axi_wstrb:    in    std_ulogic_vector(3 downto 0);
-		s0_axi_wvalid:   in    std_ulogic;
-		s0_axi_wready:   out   std_ulogic;
-		-- Read data channel
-		s0_axi_rdata:    out   std_ulogic_vector(31 downto 0);
-		s0_axi_rresp:    out   std_ulogic_vector(1 downto 0);
-		s0_axi_rvalid:   out   std_ulogic;
-		s0_axi_rready:   in    std_ulogic;
-		-- Write response channel
-		s0_axi_bresp:    out   std_ulogic_vector(1 downto 0);
-		s0_axi_bvalid:   out   std_ulogic;
-		s0_axi_bready:   in    std_ulogic;
-
-		led:             out   std_ulogic_vector(3 downto 0)
-		irq: 		 out   std_ulogic;
+                enable : in std_ulogic;
+                p: in w56; -- plaintext, Base Address: 0x000
+                c: in w56; -- ciphertext, BA: 0x008
+                k: in  w56; -- current secret key, BA: 0x018
+                k1: out  w56; -- found secret key, BA: 0x020
+                found:   out std_ulogic; -- Set to '1' if the mach in e found the key
+	        k0_mw:   in  std_ulogic; -- MSB of k0 written
+                k0_lw:   in  std_ulogic; -- LSB of k0 written
+                k_mr:    in  std_ulogic; -- MSB of k read
+                k_lr:    in  std_ulogic; -- LSB of k read
+                k_req:   out w56 -- Key to send in case of requests
+                
 	);
 end entity des_cracker;
 
 architecture rtl of des_cracker is
 
-	signal p:   std_ulogic_vector(63 downto 0); -- plaintext, Base Address: 0x000
-	signal c:   std_ulogic_vector(63 downto 0); -- ciphertext, BA: 0x008
-	signal k0:  std_ulogic_vector(55 downto 0); -- starting secret key, BA: 0x010
-	signal k:   std_ulogic_vector(55 downto 0); -- current secret key, BA: 0x018
-	signal k1:  std_ulogic_vector(55 downto 0); -- found secret key, BA: 0x020
+signal X : w56;
+-- signal T : w56; -- 2**56 overflow
+
+
 
 begin
-
+           X<= (1 to 56-N => '1', others => '0');
+           GEN : for i in 0 to N-1 generate -- 2 puissance pN
+           begin 
+           cracking_machine : entity work.cracking_machine(rtl)
+           port map (
+             aclk => aclk,
+             sresetn => aresetn, -- pourquoi sresetn dans la cracking 
+             enable => enable,
+             p => p,
+             c=>c,
+             k0 => std_logic_vector(unsigned(i) * unsigned(X)),
+             k1 =>k1,
+             found => found,
+             k0_mw => k0_mw,
+             k0_lw => k0_lw,
+             k_mr => k_mr,
+             k_lr => k_lr,
+             k_req => k_req
+             );
+           end generate GEN;            
 end architecture rtl;

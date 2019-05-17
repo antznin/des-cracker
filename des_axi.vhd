@@ -6,7 +6,7 @@ use unisim.vcomponents.all;
 use work.des_pkg.all;
 use work.des_cst.all;
 
-entity des_cracker is
+entity axi is
 	port (
 		-- Clock and reset
 		aclk:            in    std_ulogic;
@@ -37,7 +37,7 @@ entity des_cracker is
 		led:             out   std_ulogic_vector(3 downto 0);
 		irq: 		 out   std_ulogic
 	);
-end entity des_cracker;
+end entity axi;
 
 architecture rtl of des_cracker is
 
@@ -53,23 +53,23 @@ architecture rtl of des_cracker is
 	signal k_local:   w56; -- current secret key, BA:  0x 018
 	signal k1_local:  w56; -- found secret key, BA:    0x 020
 
-	signal crack_wvalid : std_ulogic; -- Set to '1' when receiving valid data on write
-									  -- channel address
-    signal crack_rvalid : std_ulogic; -- Set to '1' when receiving valid data on read
-									  -- channel address 
+        signal found : out std_ulogic;
+
+        signal k0_mw : in std_ulogic
 
 
 type states is (idle, waiting);
 signal state_r, state_w: states;
         
-type states_crack is (frozen, running);
-signal state_cr: states_crack;
+
         
 begin
 
 	led <= k(30 to 33); -- ATTENTION DOWNTO NON RESPECTE
-
-
+        
+        -- des_cracker : entity work.des_cracker(rtl)
+ 
+          
 	process(aclk)
 		variable add: natural range 0 to 2**10 - 1;
 	begin
@@ -227,44 +227,4 @@ begin
 	end process;
 
 
-	process(aclk)
-   	begin
-
-     	if rising_edge(aclk) then
-     		if aresetn='0' then
-     			p  <= (others =>'0');
-     			c  <= (others =>'0');
-     			k0 <= (others =>'0');
-     			k  <= (others =>'0');
-     			k1 <= (others =>'0');
-     		else
-     			p  <= p_local;
-     			c  <= c_local;
-     			k0 <= k0_local;
-     			k  <= k0;
-     			case state_cr is
-     				when running => 
-		 				k <= kg(k); -- k vaudra k+1 seulement a la fin du process
-		 				if c=des(p,k, true) then
-		 					k1 <= k;
-		 					-- IRQ A REGARDER
-							irq <= '1';
-		 				elsif crack_wvalid = '1' and crack_rvalid='1' then
-		 					state_cr <= running;
-		 				elsif crack_wvalid='0' or crack_rvalid='0' then
-		 					state_cr <= frozen;
-		 				end if;
-     				when frozen =>
-		 				if crack_wvalid = '1' and crack_rvalid='1' then
-		 					state_cr <= running;
-		 				else
-		 					state_cr <= frozen;
-		 				end if;
-     			end case;
-     		end if;
-     	end if;
-	end process;
-   
-end architecture rtl; 
-
--- vim: set ts=4 sw=4 tw=90 noet :
+end architecture rtl;
