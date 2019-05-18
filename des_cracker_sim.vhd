@@ -9,13 +9,20 @@ use ieee.math_real.all;
 use work.des_pkg.all;
 use work.des_cst.all;
 
-entity sim is
+entity des_cracker_sim is
   port (
-    test : out table56(1 to 4)
+    test : out table56(1 to 4);
+    t : out integer;
+    r : out w56;
+    pi : out unsigned(1 to 56);
+    tmp : out table112(1 to 4);
+    index : out table_u56(1 to 4);
+    x : out unsigned (1 to 56)
+    
     );
-end entity sim;
+end entity des_cracker_sim;
 
-architecture rtl of sim is
+architecture rtl of des_cracker_sim is
 
 	signal aclk:     std_ulogic;
 	signal aresetn: std_ulogic;
@@ -23,14 +30,15 @@ architecture rtl of sim is
 	signal p:       w64;
 	signal c:       w64;
 	signal k0:      w56;
-        signal k : w56;
+        signal k : table56(1 to 4);
         signal k1 : table56(1 to 4);
         signal k_req : table56(1 to 4);
-	signal k0_mw:   std_ulogic; -- MSB of k0 written
-	signal k0_lw:   std_ulogic; -- LSB of k0 written
-	signal k_mr:    std_ulogic; -- MSB of k read
-	signal k_lr:    std_ulogic; -- LSB of k read
+	signal k0_mw:   table_bit(1 to 4); -- MSB of k0 written
+	signal k0_lw:  table_bit(1 to 4); -- LSB of k0 written
+	signal k_mr:    table_bit(1 to 4); -- MSB of k read
+	signal k_lr:  table_bit(1 to 4); -- LSB of k read
         signal found : table_bit(1 to 4);
+
         
     
  begin   
@@ -50,7 +58,13 @@ architecture rtl of sim is
         k_mr => k_mr,
         k_lr => k_lr,
         k_req => k_req,
-        test => test
+        test => test,
+        r => r,
+        t => t,
+        pi => pi,
+        tmp => tmp,
+        index => index,
+        x => x
 	);
 
 end rtl;

@@ -11,20 +11,8 @@
 # //  is prohibited from disclosure under the Trade Secrets Act,
 # //  18 U.S.C. Section 1905.
 # //
-# vsim myLib.des_cracker_sim 
-# Start time: 17:11:50 on May 17,2019
-# ** Note: (vsim-3812) Design is being optimized...
-# ** Error: (vopt-13130) Failed to find design unit des_cracker_sim.
-#         Searched libraries:
-#             work
-#             myLib
-# Optimization failed
-# Error loading design
-# End time: 17:11:51 on May 17,2019, Elapsed time: 0:00:01
-# Errors: 1, Warnings: 0
-vsim myLib.sim
-# vsim myLib.sim 
-# Start time: 17:11:58 on May 17,2019
+# vsim myLib.des_ks_sim 
+# Start time: 17:28:07 on May 17,2019
 # ** Note: (vsim-3812) Design is being optimized...
 # ** Error: /homes/ahmeda/ds/project/des/des_body.pkg(3): (vopt-1915) Cannot load design unit "work.des_cst".
 # ** Error (suppressible): /homes/ahmeda/ds/project/des/des_body.pkg(3): (vopt-1195) Cannot find expanded name "work.des_cst".
@@ -32,11 +20,11 @@ vsim myLib.sim
 # ** Note: /homes/ahmeda/ds/project/des/des_body.pkg(9): Vopt Compiler exiting
 # ** Error: (vopt-2064) Compiler back-end code generation process terminated with code 2.
 # Error loading design
-# End time: 17:11:58 on May 17,2019, Elapsed time: 0:00:00
+# End time: 17:28:07 on May 17,2019, Elapsed time: 0:00:00
 # Errors: 4, Warnings: 0
-vsim myLib.des_cracker
-# vsim myLib.des_cracker 
-# Start time: 17:18:13 on May 17,2019
+vsim myLib.des_ks_sim
+# vsim myLib.des_ks_sim 
+# Start time: 17:29:26 on May 17,2019
 # ** Note: (vsim-3812) Design is being optimized...
 # ** Error: /homes/ahmeda/ds/project/des/des_body.pkg(3): (vopt-1915) Cannot load design unit "work.des_cst".
 # ** Error (suppressible): /homes/ahmeda/ds/project/des/des_body.pkg(3): (vopt-1195) Cannot find expanded name "work.des_cst".
@@ -44,11 +32,11 @@ vsim myLib.des_cracker
 # ** Note: /homes/ahmeda/ds/project/des/des_body.pkg(9): Vopt Compiler exiting
 # ** Error: (vopt-2064) Compiler back-end code generation process terminated with code 2.
 # Error loading design
-# End time: 17:18:13 on May 17,2019, Elapsed time: 0:00:00
+vsim myLib.des_ks_sim
+# End time: 17:29:30 on May 17,2019, Elapsed time: 0:00:04
 # Errors: 4, Warnings: 0
-vsim myLib.cracking_machine
-# vsim myLib.cracking_machine 
-# Start time: 17:18:19 on May 17,2019
+# vsim myLib.des_ks_sim 
+# Start time: 17:29:30 on May 17,2019
 # ** Note: (vsim-3812) Design is being optimized...
 # ** Error: /homes/ahmeda/ds/project/des/des_body.pkg(3): (vopt-1915) Cannot load design unit "work.des_cst".
 # ** Error (suppressible): /homes/ahmeda/ds/project/des/des_body.pkg(3): (vopt-1195) Cannot find expanded name "work.des_cst".
@@ -56,5 +44,5 @@ vsim myLib.cracking_machine
 # ** Note: /homes/ahmeda/ds/project/des/des_body.pkg(9): Vopt Compiler exiting
 # ** Error: (vopt-2064) Compiler back-end code generation process terminated with code 2.
 # Error loading design
-# End time: 17:18:20 on May 17,2019, Elapsed time: 0:00:01
+# End time: 17:29:30 on May 17,2019, Elapsed time: 0:00:00
 # Errors: 4, Warnings: 0

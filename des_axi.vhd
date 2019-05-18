@@ -41,22 +41,20 @@ end entity axi;
 
 architecture rtl of des_cracker is
 
-	signal p:   w64; -- plaintext, Base Address: 0x 000
-	signal c:   w64; -- ciphertext, BA:          0x 008
-	signal k0:  w56; -- starting secret key, BA: 0x 010
-	signal k:   w56; -- current secret key, BA:  0x 018
-	signal k1:  w56; -- found secret key, BA:    0x 020
 
 	signal p_local:   w64; -- plaintext, Base Address: 0x 000
 	signal c_local:   w64; -- ciphertext, BA:          0x 008
-	signal k0_local:  w56; -- starting secret key, BA: 0x 010
-	signal k_local:   w56; -- current secret key, BA:  0x 018
-	signal k1_local:  w56; -- found secret key, BA:    0x 020
+	signal k0_local:  table56(1 to N); -- starting secret key, BA: 0x 010
+	signal k_local:   table56(1 to N); -- current secret key, BA:  0x 018
+                                           -- -- inutile ??
+	signal k1_local:  table56(1 to 7); -- found secret key, BA:    0x 020
 
-        signal found :  std_ulogic;
-
-        signal k0_mw : std_ulogic
-
+        
+        signal k0_lw :  table_bit(1 to N);
+        signal k0_mw :  table_bit(1 to N);
+        signal k_mr :  table_bit(1 to N);
+        signal k_lr :  table_bit(1 to N);
+        signal found : table_bit(1 to N);
 
 type states is (idle, waiting);
 signal state_r, state_w: states;
@@ -67,8 +65,16 @@ begin
 
 	led <= k(30 to 33); -- ATTENTION DOWNTO NON RESPECTE
         
-        -- des_cracker : entity work.des_cracker(rtl)
- 
+        des_cracker : entity work.des_cracker(rtl)
+          generic map (
+            N => 7)
+          port map (
+            aclk => aclk,
+            aresetn => aresetn,
+            p => p_local,
+            c => c_local,
+            k => k_local, -- qu'est ce que k ?
+            k1 => k1_local;
           
 	process(aclk)
 		variable add: natural range 0 to 2**10 - 1;

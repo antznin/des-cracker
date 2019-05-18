@@ -13,7 +13,7 @@ use work.des_cst.all;
 entity des_cracker is
 
         generic (
-          N : integer 
+          N : integer  
           );
 	port (
 		-- Clock and reset
@@ -22,53 +22,81 @@ entity des_cracker is
                 enable : in std_ulogic;
                 p: in w64; -- plaintext, Base Address: 0x000
                 c: in w64; -- ciphertext, BA: 0x008
-                k: in  w56; -- current secret key, BA: 0x018
+                k: in table56(1 to N); -- current secret key, BA: 0x018 -- pq ?
                 k1: out  table56(1 to N); -- un tableau de k1
                 found:   out table_bit(1 to N); -- found devient un tableau de found
-	        k0_mw:   in  std_ulogic; -- MSB of k0 written
-                k0_lw:   in  std_ulogic; -- LSB of k0 written
-                k_mr:    in  std_ulogic; -- MSB of k read
-                k_lr:    in  std_ulogic; -- LSB of k read
+	        k0_mw:   in  table_bit(1 to N); -- MSB of k0 written
+                k0_lw:   in  table_bit(1 to N); -- LSB of k0 written
+                k_mr:    in  table_bit(1 to N); -- MSB of k read
+                k_lr:    in  table_bit(1 to N); -- LSB of k read
                 k_req:   out table56(1 to N); -- key devient un tableau de key
-                test : out table56(1 to N) -- test devient un tableau de test             
+                test : out table56(1 to N); -- test devient un tableau de test
+                t : out integer;
+                r : out w56;
+                tmp : out table112(1 to N);
+                index : out table_u56(1 to N);
+                x : out unsigned(1 to 56)
 	);
 end entity des_cracker;
 
 architecture rtl of des_cracker is
 
-signal r : w56;
-signal t : integer;
-signal x : unsigned(1 to 56);
-signal tmp : std_ulogic_vector(1 to 112);
---ulogic ou logic 
+--signal r : w56;
+--signal t : integer;
+--signal x : unsigned(1 to 56);
+--signal tmp : table112(1 to N);
+-- signal index : table_u56(1 to N);
+
 
 
 
 begin
-           t <= to_integer(unsigned(r));
+
+process
+begin
+           for i in 1 to N loop
+           index(i) <=to_unsigned(i,56);
+           end loop;
+           wait;
+end process;
+
+           r <= (27 =>'1', others =>'0'); 
+           t <= to_integer(unsigned(r)); 
            x<=to_unsigned(t/N, 56);
-           GEN : for i in 0 to N-1 generate -- 2 puissance pN
-           begin
-           tmp <= std_ulogic_vector(to_unsigned(i,56)*x);
-           test(i) <= tmp(1 to 56);
+           GEN : for i in 1 to N generate
+           begin;
+           tmp(i)<= std_ulogic_vector(index(i)*x);
+           test(i) <= tmp(i)(57 to 112);
            cracking_machine : entity work.cracking_machine(rtl)
            port map (
              aclk => aclk,
-             sresetn => aresetn, -- pourquoi sresetn dans la cracking 
+             sresetn => aresetn,
              enable => enable,
              p => p,
              c => c,
-             k0 => std_ulogic_vector(to_unsigned(i,56)*x),
+             k0 => tmp(i)(57 to 112),
              k1 => k1(i),
              found => found(i),
-             k0_mw => k0_mw,
-             k0_lw => k0_lw,
-             k_mr => k_mr,
-             k_lr => k_lr,
+             k0_mw => k0_mw(i),
+             k0_lw => k0_lw(i),
+             k_mr => k_mr(i),
+             k_lr => k_lr(i),
              k_req => k_req(i)
              );
-           end generate GEN;            
+           end generate;
+
+
 end architecture rtl;
 
 
--- signal T : w56; -- 2**56 overflow
+
+
+
+-- questions 
+--comment simuler ce qu'il y a dans la cracking machine
+--probleme d'overflow on peut avoir des intervalles seulement de 2^27/N au max
+--au dessus ca crache
+--comment arrondir le nombre de 112 bits en 56 bits
+--comprendre comment fonctionne la generate loop
+--pourquoi sresetn dans la cracking
+
