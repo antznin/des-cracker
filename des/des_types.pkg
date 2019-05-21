@@ -12,6 +12,10 @@ package des_pkg is
 	subtype w64 is std_ulogic_vector (1 to 64);
 
 	type rkey_table is array(1 to 16) of w48;
+	type table56 is array(natural range <>) of std_ulogic_vector(1 to 56);
+	type table112 is array(natural range <>) of std_ulogic_vector(1 to 112);
+	type table_bit is array(natural range <>) of std_ulogic;
+	type table_u56 is array(natural range<>) of unsigned(1 to 56);
 
 	-- Initial and final permutations
 	function ip(w : w64)            return w64;

@@ -74,8 +74,14 @@ begin
             p => p_local,
             c => c_local,
             k => k_local, -- qu'est ce que k ?
-            k1 => k1_local;
-          
+            k1 => k1_local,
+            found => found,
+            k0_lw => k0_lw,
+            k0_mw => k0_mw,
+            k_lr => k_lr,
+            k_mr => k_mr
+            );
+            
 	process(aclk)
 		variable add: natural range 0 to 2**10 - 1;
 	begin

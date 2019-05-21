@@ -12,10 +12,8 @@ package des_cst is
 	type table_t   is array(natural range <>) of natural;
 	type table64_t is array(0 to 63) 	  of natural;
 	type ttable64_t  is array(natural range <>) of table64_t;
-	type table56 is array(natural range <>) of std_ulogic_vector(1 to 56);
-	type table112 is array(natural range <>) of std_ulogic_vector(1 to 112);
-	type table_bit is array(natural range <>) of std_ulogic;
-	type table_u56 is array(natural range<>) of unsigned(1 to 56);
+
+
 
 	-- IP & IIP constants
 	constant ip_table : table_t(1 to 64) :=
