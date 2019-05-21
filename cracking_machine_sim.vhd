@@ -7,13 +7,13 @@ use work.des_pkg.all;
 
 entity cracking_machine_sim is
 	port (
-		found:       out std_ulogic; -- Set to '1' if the mach in e found the key
-		k1:          out w56;
-		k_req:       out w56 -- Key to send in case of requests
+		found: out std_ulogic; -- Set to '1' if the mach in e found the key
+		k1:    out w56;
+		k_req: out w56 -- Key to send in case of requests
 	);
 end entity cracking_machine_sim;
 
-architecture rtl of cracking_machine_sim is
+architecture sim of cracking_machine_sim is
 
 	signal clk:     std_ulogic;
 	signal sresetn: std_ulogic;
@@ -28,7 +28,7 @@ architecture rtl of cracking_machine_sim is
 
 begin
 
-	entity work.cracking_machine(rtl)
+	dut: entity work.cracking_machine(rtl)
 	port map (
 		clk     => clk,
 		sresetn => sresetn,
@@ -36,15 +36,14 @@ begin
 		p       => p,
 		c       => c,
 		k0      => k0,
+		k1      => k1,
+		found   => found,
 		k0_mw   => k0_mw,
 		k0_lw   => k0_lw,
 		k_mr    => k_mr,
 		k_lr    => k_lr,
-		found   => found,
-		k0_mw   => k0_mw,
 		k_req   => k_req
 	);
-		
 
 	-- the clock
 	process
@@ -60,6 +59,12 @@ begin
 		variable seed2: positive := 1;
 		variable rnd:   real;
 	begin
+		---- Defining default values -----
+		p  <= x"f0f0f0f0f0f0f0f0";
+		c  <= x"f0f0f0f0f0f0f0f0";
+		k0 <= (others => '0'); -- Testing from 0
+
+		---- RESET AND ENABLE TESTING ____
 		sresetn <= '0';
 		for i in 1 to 10 loop
 			wait until rising_edge(clk);
@@ -80,9 +85,36 @@ begin
 			end if;
 			wait until rising_edge(clk);
 		end loop;
+		---- END OF TESTING --------------
 
+		for i in 1 to 1000 loop
+			k0_lw <= '0';
+			k0_mw <= '0';
+			k_mr  <= '0';
+			k_lr  <= '0';
+			if i = 1 then
+				k0_lw <= '1'; -- Starting the machine on the first clock cycle
+			end if;
+			uniform(seed1, seed2, rnd);
+			if rnd < 0.05 then
+				k0_lw <= '1';
+			end if;
+			uniform(seed1, seed2, rnd);
+			if rnd < 0.05 then
+				k0_mw <= '1';
+			end if;
+			uniform(seed1, seed2, rnd);
+			if rnd < 0.05 then
+				k_lr <= '1';
+				for i in 1 to 2 loop
+					wait until rising_edge(clk);
+				end loop;
+				k_mr <= '1';
+			end if;
+			wait until rising_edge(clk);
+		end loop;
 	end process;
 
-end rtl;
+end sim;
 
 -- vim: set ts=4 sw=4 tw=90 noet :

@@ -6,7 +6,7 @@ use work.des_pkg.all;
 
 entity cracking_machine is
 	port (
-		aclk:    in  std_ulogic;
+		clk:     in  std_ulogic;
 		sresetn: in  std_ulogic;
 		enable:  in  std_ulogic; -- "Power button"
 		p:       in  w64;
@@ -34,9 +34,9 @@ architecture rtl of cracking_machine is
 begin
 
 	-- Synchronous process
-	sync_proc: process (aclk)
+	sync_proc: process (clk)
 	begin
-		if rising_edge(aclk) then
+		if rising_edge(clk) then
 			if sresetn = '0' then
 				state_crack <= FROZEN;
 				state_req   <= UPDATING;
