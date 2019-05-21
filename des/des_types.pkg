@@ -24,6 +24,7 @@ package des_pkg is
 	function f(r : w32; rk : w48) return w32;
 	
 	---- Key schedule
+	function extend_key(k_in: w56)                  return w64; 
 	function left_shift(w : w28; amount : natural)  return w28;
 	function right_shift(w : w28; amount : natural) return w28;
 	function pc1(w : w64)                           return w56;
