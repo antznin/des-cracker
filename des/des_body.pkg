@@ -30,6 +30,18 @@ function iip(w1 : w32; w2 : w32)  return w64 is
 end iip;	
 
 -- Key schedule functions
+function extend_key(k_in: w56) return w64 is
+begin
+	return   k_in(1 to 7)   & "0"
+	       & k_in(8 to 14)  & "0"
+	       & k_in(15 to 21) & "0"
+	       & k_in(22 to 28) & "0"
+	       & k_in(29 to 35) & "0"
+	       & k_in(36 to 42) & "0"
+	       & k_in(43 to 49) & "0"
+	       & k_in(50 to 56) & "0";
+end extend_key;
+
 function left_shift (w:w28; amount : natural) return w28 is
   	   begin
 	   if amount=2 then
@@ -138,7 +150,7 @@ begin
 end f;
 
 -- DES main function
-function des (p : w64; k : w56; encipher: boolean) return w64 is
+function des (p : w64; k : w64; encipher: boolean) return w64 is
 -- encipher :
 --	* true : encipher the text
 -- 	* false : decipher the text
