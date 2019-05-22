@@ -65,12 +65,12 @@ begin
 	begin
 		---- Defining default values -----
 		p  <= x"f0f0f0f0f0f0f0f0";
-		c  <= x"c13590188a8bf433";
+		c  <= x"0b6a2cd8d51bb869";
 		k0_lw <= '0';
 		k0_mw <= '0';
 		k_mr  <= '0';
 		k_lr  <= '0';
-		-- Found key should be 0000000001111111
+		-- Found key should be 
 
 		---- RESET AND ENABLE TESTING ____
 		sresetn <= '0';
@@ -113,7 +113,7 @@ begin
 			end if;
 			wait until rising_edge(clk);
 		end loop;
-		finish;
+		-- finish;
 	end process;
 
 end architecture sim;
