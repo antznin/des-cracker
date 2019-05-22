@@ -5,13 +5,15 @@ use IEEE.numeric_std.ALL;
 use work.des_pkg.all;
 
 entity cracking_machine is
+	generic (
+		k0: w56 := (others => '0')
+	);
 	port (
 		clk:     in  std_ulogic;
 		sresetn: in  std_ulogic;
 		enable:  in  std_ulogic; -- "Power button"
 		p:       in  w64;
 		c:       in  w64;
-		k0:      in  w56;
 		k1:      out w56;
 		found:   out std_ulogic; -- Set to '1' if the mach in e found the key
 		k0_mw:   in  std_ulogic; -- MSB of k0 written
@@ -29,7 +31,7 @@ architecture rtl of cracking_machine is
 
 	signal state_crack, next_state_crack: states_cracking;
 	signal state_req, next_state_req:     states_request;
-	signal current_k:                     w56 := k0;
+	signal current_k, next_k: w56 := k0;
 
 begin
 
@@ -47,6 +49,7 @@ begin
 		end if;
 	end process;
 
+
 	-- State processes
 	--   Cracking machine itself
 	state_crack_proc: process (k0_lw, k0_mw)
@@ -59,16 +62,16 @@ begin
 				end if;
 
 			when RUNNING =>
-				if des(p, current_k, true) = c then
-					found <= '1';
-					k1 <= current_k;
-				else
-					current_k <= kg(current_k);
-				end if;
 				next_state_crack <= RUNNING;
 				if k0_lw = '1' then
 					next_state_crack <= FROZEN;
 				end if;
+				current_k <= next_k;
+				if des(p, extend_key(current_k), true) = c then
+					found <= '1';
+					k1    <= current_k;
+				end if;
+				next_k <= std_ulogic_vector(unsigned(current_k) + 1);
 		end case;
 	end process;
 
