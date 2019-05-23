@@ -9,9 +9,8 @@ use work.des_pkg.all;
 
 entity cracking_machine_sim is
 	port (
-		found: out std_ulogic; -- Set to '1' if the mach in e found the key
-		k1:    out w56;
-		k_req: out w56 -- Key to send in case of requests
+		found:   out std_ulogic; -- Set to '1' if the mach in e found the key
+		found_k: out w56
 	);
 end entity cracking_machine_sim;
 
@@ -24,14 +23,13 @@ architecture sim of cracking_machine_sim is
 	signal c:       w64;
 	signal k0_mw:   std_ulogic; -- MSB of k0 written
 	signal k0_lw:   std_ulogic; -- LSB of k0 written
-	signal k_mr:    std_ulogic; -- MSB of k read
-	signal k_lr:    std_ulogic; -- LSB of k read
 
 begin
 
-	dut: entity work.cracking_machine(rtl)
+	cm: entity work.cracking_machine(rtl)
 	generic map (
-		k0 => x"00000000000000"
+		starting_k => x"00000000000000",
+		N          => 1 -- Testing only one machine
 	)
 	port map (
 		clk     => clk,
@@ -39,13 +37,10 @@ begin
 		enable  => enable,
 		p       => p,
 		c       => c,
-		k1      => k1,
+		found_k => found_k,
 		found   => found,
 		k0_mw   => k0_mw,
-		k0_lw   => k0_lw,
-		k_mr    => k_mr,
-		k_lr    => k_lr,
-		k_req   => k_req
+		k0_lw   => k0_lw
 	);
 
 	-- the clock
@@ -68,17 +63,30 @@ begin
 		c  <= x"0b6a2cd8d51bb869";
 		k0_lw <= '0';
 		k0_mw <= '0';
-		k_mr  <= '0';
-		k_lr  <= '0';
-		-- Found key should be 
+		-- Found key should be 00000000000408 (56 bits)
 
 		---- RESET AND ENABLE TESTING ____
+		-- Testing sresetn
 		sresetn <= '0';
 		for i in 1 to 10 loop
 			wait until rising_edge(clk);
 		end loop;
 		sresetn <= '1';
-		for i in 1 to 1000 loop
+		wait until rising_edge(clk);
+		-- Testing enable
+		enable <= '0';
+		for i in 1 to 10 loop
+			wait until rising_edge(clk);
+		end loop;
+		enable <= '1';
+		wait until rising_edge(clk);
+		---- Testing both ----
+		-- Starting the machine 
+		k0_mw <= '1';
+		wait until rising_edge(clk);
+		k0_mw <= '0';
+		wait until rising_edge(clk);
+		for i in 1 to 100 loop
 			uniform(seed1, seed2, rnd);
 			if rnd < 0.1 then
 				sresetn <= '0';
@@ -91,29 +99,37 @@ begin
 			else
 				enable <= '1';
 			end if;
+			-- Freezing the machine sometines to see if it starts back alright
+			uniform(seed1, seed2, rnd);
+			if rnd < 0.05 then
+				k0_lw <= '1'; -- Stop
+				for i in 1 to 10 loop
+					wait until rising_edge(clk);
+				end loop;
+				k0_mw <= '1'; -- Start
+			end if;
 			wait until rising_edge(clk);
 		end loop;
 		---- END OF TESTING --------------
 
-		k0_mw <= '1'; -- Starting the machine 
-		wait until rising_edge(clk);
-
-		while found /= '1' loop
-			k0_lw <= '0';
-			k0_mw <= '0';
-			k_mr  <= '0';
-			k_lr  <= '0';
-			uniform(seed1, seed2, rnd);
-			if rnd < 0.03 then
-				k_lr <= '1';
-				for i in 1 to 2 loop
-					wait until rising_edge(clk);
-				end loop;
-				k_mr <= '1';
-			end if;
+		---- KEY RESEARCH ----------------
+		-- Resetting
+		sresetn <= '0';
+		for i in 1 to 10 loop
 			wait until rising_edge(clk);
 		end loop;
-		-- finish;
+		sresetn <= '1';
+		wait until rising_edge(clk);
+		-- Starting the machine 
+		k0_mw <= '1';
+		wait until rising_edge(clk);
+		k0_mw <= '0';
+		wait until rising_edge(clk);
+
+		while found /= '1' loop -- Asa found equals '1' the simulation stops
+			wait until rising_edge(clk);
+		end loop;
+		finish;
 	end process;
 
 end architecture sim;
