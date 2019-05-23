@@ -18,7 +18,8 @@ entity cracking_machine is
 		found_k: out w56;
 		found:   out std_ulogic; -- Set to '1' if the mach in e found the key
 		k0_mw:   in  std_ulogic; -- MSB of k0 written
-		k0_lw:   in  std_ulogic -- LSB of k0 written
+		k0_lw:   in  std_ulogic; -- LSB of k0 written
+		k_req:   out w56 -- Key that may be requested
 	);
 end entity cracking_machine;
 
@@ -30,6 +31,8 @@ architecture rtl of cracking_machine is
 	signal current_k:   w56 := starting_k;
 
 begin
+
+	k_req <= current_k;
 
 	-- Cracking process
 	process (clk)
