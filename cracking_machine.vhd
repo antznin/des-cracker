@@ -5,13 +5,15 @@ use IEEE.numeric_std.ALL;
 use work.des_pkg.all;
 
 entity cracking_machine is
+	generic (
+		k0: w56
+	);
 	port (
-		aclk:    in  std_ulogic;
+		clk:     in  std_ulogic;
 		sresetn: in  std_ulogic;
 		enable:  in  std_ulogic; -- "Power button"
 		p:       in  w64;
 		c:       in  w64;
-		k0:      in  w56;
 		k1:      out w56;
 		found:   out std_ulogic; -- Set to '1' if the mach in e found the key
 		k0_mw:   in  std_ulogic; -- MSB of k0 written
@@ -27,67 +29,65 @@ architecture rtl of cracking_machine is
 	type states_cracking is (FROZEN, RUNNING);
 	type states_request  is (UPDATING, FREEZE);
 
-	signal state_crack, next_state_crack: states_cracking;
-	signal state_req, next_state_req:     states_request;
-	signal current_k:                     w56 := k0;
+	signal state_crack: states_cracking;
+	signal state_req:   states_request;
+	signal current_k:   w56 := k0;
 
 begin
 
-	-- Synchronous process
-	sync_proc: process (aclk)
+	-- Cracking process
+	process (clk)
 	begin
-		if rising_edge(aclk) then
+		if rising_edge(clk) then
 			if sresetn = '0' then
 				state_crack <= FROZEN;
-				state_req   <= UPDATING;
+				k1 <= (others => '0');
+				found <= '0';
 			elsif enable = '1' then
-				state_crack <= next_state_crack;
-				state_req   <= next_state_req;
+				case state_crack is
+					when FROZEN =>
+						state_crack <= FROZEN;
+						if k0_mw = '1' then
+							state_crack <= RUNNING;
+						end if;
+					when RUNNING =>
+						state_crack <= RUNNING;
+						if k0_lw = '1' then
+							state_crack <= FROZEN;
+						end if;
+						if des(p, extend_key(current_k), true) = c then
+							found       <= '1';
+							k1          <= current_k;
+							state_crack <= FROZEN;
+						end if;
+						current_k <= kg(current_k);
+				end case;
 			end if;
 		end if;
 	end process;
 
-	-- State processes
-	--   Cracking machine itself
-	state_crack_proc: process (k0_lw, k0_mw)
+	-- Key request process
+	process (clk)
 	begin
-		case state_crack is
-			when FROZEN =>
-				next_state_crack <= FROZEN;
-				if k0_mw = '1' then
-					next_state_crack <= RUNNING;
-				end if;
-
-			when RUNNING =>
-				if des(p, current_k, true) = c then
-					found <= '1';
-					k1 <= current_k;
-				else
-					current_k <= kg(current_k);
-				end if;
-				next_state_crack <= RUNNING;
-				if k0_lw = '1' then
-					next_state_crack <= FROZEN;
-				end if;
-		end case;
-	end process;
-
-	--   Key request machine
-	state_request_proc: process (k_lr, k_mr)
-	begin
-		case state_req is
-			when UPDATING =>
-				k_req <= current_k; -- Key update
-				next_state_req <= UPDATING;
-				if k_lr = '1' then
-					next_state_req <= FREEZE;
-				end if;
-			when FREEZE =>
-				next_state_req <= FREEZE;
-				if k_mr = '1' then
-					next_state_req <= UPDATING;
-				end if;
-		end case;
+		if rising_edge(clk) then
+			if sresetn = '0' then
+				state_req   <= UPDATING;
+			elsif enable = '1' then
+				case state_req is
+					when UPDATING =>
+						k_req <= current_k; -- Key update
+						state_req <= UPDATING;
+						if k_lr = '1' then
+							state_req <= FREEZE;
+						end if;
+					when FREEZE =>
+						state_req <= FREEZE;
+						if k_mr = '1' then
+							state_req <= UPDATING;
+						end if;
+				end case;
+			end if;
+		end if;
 	end process;
 
 end rtl;
