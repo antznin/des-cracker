@@ -164,18 +164,12 @@ begin
 end des;
 
 
--- Key Generator
-
-function kg(k:w56) return w56 is
-	 variable k_tmp : w56;
+-- Key increment
+function inc(k : w56; N : integer) return w56 is
+	variable k_tmp : w56;
 begin
-	 k_tmp := std_ulogic_vector(unsigned(k) + 1) ;
-	 if k_tmp>=k then 
-	    k_tmp := std_ulogic_vector(unsigned(k_tmp) + 1);
-	    return k_tmp;
-	end if;
-	return (others => '0');
-end kg;
+	return std_ulogic_vector(unsigned(k) + N);
+end inc;
 
 end package body des_pkg;
 

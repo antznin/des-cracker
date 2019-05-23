@@ -7,7 +7,6 @@ use ieee.numeric_std.all;
 use ieee.math_real.all;
 
 use work.des_pkg.all;
-use work.des_cst.all;
 
 entity des_ks_sim is
 	port(
@@ -40,7 +39,6 @@ architecture sim of des_ks_sim is
         --   end loop;
 	     key_in <= x"f0f0f0f0f0f0f0f0";
 	     wait for 10 ns;
-	     finish;
        end process;
 
        key_out <= ks(key_in); -- essayer de le rentrer a l'interieur 
@@ -76,14 +74,15 @@ architecture sim of des_ks_sim is
 
 
           process
+			  variable N: integer := 16;
           begin
-           k_in <= ( 56 =>'0', others =>'1');
-           k_out <= kg(k_in);
+           k_out <= ( 56 =>'0', others =>'1');
            wait for 10 ns;
-           while kg(k_out)> k_out loop
-               k_out <= kg(k_out);
+		   for i in 1 to 1000 loop
+               k_out <= inc(k_out, N);
                wait for 10 ns;
            end loop;
+	      finish;
           end process; 
        
 end architecture sim;
