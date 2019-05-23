@@ -1,84 +1,104 @@
 library ieee;
 use ieee.std_logic_1164.all;
---library unisim;
---use unisim.vcomponents.all;
 
 use std.env.all;
 
 use ieee.numeric_std.all;
 use ieee.math_real.all;
 use work.des_pkg.all;
-use work.des_cst.all;
 
 entity des_cracker is
-
-        generic (
-          N : integer :=4 
-          );
+	generic (
+		N : integer := 4 -- Number of machines
+	);
 	port (
 		-- Clock and reset
-		aclk:            in    std_ulogic;
-		sresetn:         in    std_ulogic;
-                enable : in std_ulogic;
-                p: in w64; -- plaintext, Base Address: 0x000
-                c: in w64; -- ciphertext, BA: 0x008
-                k1_t: out  table56(1 to N); -- un tableau de k1
-                found_t:   out table_bit(1 to N); -- found devient un tableau de found
-	        k0_mw_t:   in  table_bit(1 to N); -- MSB of k0 written
-                k0_lw_t:   in  table_bit(1 to N); -- LSB of k0 written
-                k_mr_t:    in  table_bit(1 to N); -- MSB of k read
-                k_lr_t:    in  table_bit(1 to N); -- LSB of k read
-                k_req_t:   out table56(1 to N); -- key devient un tableau de key
-                tmp : out table112(1 to N)
+		clk:       in  std_ulogic;
+		sresetn:   in  std_ulogic;
+		enable :   in  std_ulogic;
+		p:         in  w64; -- plaintext, Base Address: 0x000
+		c:         in  w64; -- ciphertext, BA: 0x008
+		k0: 	   in  w56;
+		k1:        out w56;
+		k0_mw:     in  std_ulogic; -- MSB of k0 written
+		k0_lw:     in  std_ulogic; -- LSB of k0 written
+		k_mr:      in  std_ulogic; -- MSB of k read
+		k_lr:      in  std_ulogic; -- LSB of k read
+		k_req:     out w56 -- Key to send in case of requests
 	);
 end entity des_cracker;
 
 architecture rtl of des_cracker is
 
+	type states_request  is (UPDATING, FREEZE);
+	signal state_req:   states_request;
 
-constant k : unsigned (1 to 56) := x"10000000000000"/N;
---constant index_t : table_u56(1 to N);
-
+	signal found_t:   table_bit(1 to N); -- table containing all mach in e found signals
+	signal found_k_t: table56(1 to N); -- table containing all mach in e found_k signals
+	signal k_req_t:   table56(1 to N); -- All requested keys
 
 begin
 
+	-- Generate all the machines
+	machine_gen : for i in 0 to N-1 generate
+	begin
+		cracking_machines : entity work.cracking_machine(rtl)
+		generic map (
+			N          => N,
+			starting_k => std_ulogic_vector(unsigned(k0) + i)
+		)
+		port map (
+			clk     => clk,
+			sresetn => sresetn,
+			enable  => enable,
+			p       => p,
+			c       => c,
+			found_k => found_k_t(i+1),
+			found   => found_t(i+1),
+			k0_mw   => k0_mw,
+			k0_lw   => k0_lw,
+			k_req   => k_req_t(i+1)
+		);
+	end generate;
 
+	-- Synchronous process to reset signals
+	sync: process (clk)
+	begin
+		if rising_edge(clk) then
+			if sresetn = '0' then
+				found_t   <= (others => '0');
+				found_k_t <= (others => (others => '0'));
+				k1        <= (others => '0');
+				k_req     <= (others => '0');
+				k_req_t   <= (others => (others => '0'));
+			end if;
+		end if;
+	end process;
 
-
-
-GEN : for i in 1 to N generate
-begin
-tmp(i)<= std_ulogic_vector(i*k);
-cracking_machine : entity work.cracking_machine(rtl)
-port map (
-aclk => aclk,
-sresetn => sresetn,
-enable => enable,
-p => p,
-c => c,
-k0 => tmp(i)(57 to 112),
-k1 => k1_t(i),
-found => found_t(i),
-k0_mw => k0_mw_t(i),
-k0_lw => k0_lw_t(i),
-k_mr => k_mr_t(i),
-k_lr => k_lr_t(i),
-k_req => k_req_t(i)
-);
-end generate;
-
+	-- Key request process
+	key_req: process (clk)
+	begin
+		if rising_edge(clk) then
+			if sresetn = '0' then
+				state_req   <= UPDATING;
+			elsif enable = '1' then
+				case state_req is
+					when UPDATING =>
+						k_req <= k_req_t(N-1); -- Key update
+						state_req <= UPDATING;
+						if k_lr = '1' then
+							state_req <= FREEZE;
+						end if;
+					when FREEZE =>
+						state_req <= FREEZE;
+						if k_mr = '1' then
+							state_req <= UPDATING;
+						end if;
+				end case;
+			end if;
+		end if;
+	end process;
 
 end architecture rtl;
 
-
-
-
-
--- questions 
---comment simuler ce qu'il y a dans la cracking machine
---probleme d'overflow on peut avoir des intervalles seulement de 2^27/N au max
---au dessus ca crache
---comment arrondir le nombre de 112 bits en 56 bits
---comprendre comment fonctionne la generate loop
---pourquoi sresetn dans la cracking
-
+-- vim: set ts=4 sw=4 tw=90 noet :
