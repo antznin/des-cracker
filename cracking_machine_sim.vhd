@@ -16,31 +16,32 @@ end entity cracking_machine_sim;
 
 architecture sim of cracking_machine_sim is
 
-	signal clk:     std_ulogic;
-	signal sresetn: std_ulogic;
-	signal enable:  std_ulogic; -- "Power button"
-	signal p:       w64;
-	signal c:       w64;
-	signal k0_mw:   std_ulogic; -- MSB of k0 written
-	signal k0_lw:   std_ulogic; -- LSB of k0 written
+	signal clk:        std_ulogic;
+	signal sresetn:    std_ulogic;
+	signal enable:     std_ulogic; -- "Power button"
+	signal p:          w64;
+	signal c:          w64;
+	signal k0_mw:      std_ulogic; -- MSB of k0 written
+	signal k0_lw:      std_ulogic; -- LSB of k0 written
+	signal starting_k: w56;
 
 begin
 
 	cm: entity work.cracking_machine(rtl)
 	generic map (
-		starting_k => x"00000000000000",
 		N          => 1 -- Testing only one machine
 	)
 	port map (
-		clk     => clk,
-		sresetn => sresetn,
-		enable  => enable,
-		p       => p,
-		c       => c,
-		found_k => found_k,
-		found   => found,
-		k0_mw   => k0_mw,
-		k0_lw   => k0_lw
+		clk        => clk,
+		sresetn    => sresetn,
+		enable     => enable,
+		p          => p,
+		c          => c,
+		found_k    => found_k,
+		starting_k => starting_k,
+		found      => found,
+		k0_mw      => k0_mw,
+		k0_lw      => k0_lw
 	);
 
 	-- the clock
@@ -56,13 +57,13 @@ begin
 		variable seed1: positive := 1;
 		variable seed2: positive := 1;
 		variable rnd:   real;
-		variable cnt:   integer := 1;
 	begin
 		---- Defining default values -----
-		p  <= x"f0f0f0f0f0f0f0f0";
-		c  <= x"0b6a2cd8d51bb869";
-		k0_lw <= '0';
-		k0_mw <= '0';
+		p          <= x"f0f0f0f0f0f0f0f0";
+		c          <= x"0b6a2cd8d51bb869";
+		starting_k <= x"00000000000000";
+		k0_lw      <= '0';
+		k0_mw      <= '0';
 		-- Found key should be 00000000000408 (56 bits)
 
 		---- RESET AND ENABLE TESTING ____
@@ -103,16 +104,21 @@ begin
 			uniform(seed1, seed2, rnd);
 			if rnd < 0.05 then
 				k0_lw <= '1'; -- Stop
+				wait until rising_edge(clk);
+				k0_lw <= '0';
 				for i in 1 to 10 loop
 					wait until rising_edge(clk);
 				end loop;
 				k0_mw <= '1'; -- Start
+				wait until rising_edge(clk);
+				k0_mw <= '0';
+				wait until rising_edge(clk);
 			end if;
 			wait until rising_edge(clk);
 		end loop;
 		---- END OF TESTING --------------
 
-		---- KEY RESEARCH ----------------
+		---- KEY SEARCH ------------------
 		-- Resetting
 		sresetn <= '0';
 		for i in 1 to 10 loop
