@@ -1,6 +1,10 @@
 library ieee;
 use ieee.std_logic_1164.all;
 
+library IEEE;
+use IEEE.std_logic_1164.ALL;
+use IEEE.numeric_std.ALL;
+
 package des_pkg is
 
 	subtype w4  is std_ulogic_vector (1 to 4 );
@@ -38,8 +42,8 @@ package des_pkg is
 	---- Main function
 	function des (p : w64; k : w56; encipher: boolean) return w64;
 
-	----Key generator function
-	function kg(k: w56)				return w56;
+	---- Key generator function
+	function inc(k : w56; N : integer) return w56;
 
 
 end package des_pkg;
