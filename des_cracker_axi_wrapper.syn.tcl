@@ -12,11 +12,11 @@
 # EDIT THIS
 
 array set ios {
-  # data   { V12 LVCMOS33 }
-  led[0] { M14 LVCMOS33 }
-  led[1] { M15 LVCMOS33 }
-  led[2] { G14 LVCMOS33 }
-  led[3] { D18 LVCMOS33 }
+  # data   {}
+  led[0] {}
+  led[1] {}
+  led[2] {}
+  led[3] {}
 }
 set frequency_mhz 100
 # set start_us 20000
@@ -25,6 +25,7 @@ set frequency_mhz 100
 # DO NOT MODIFY ANYTHING BELOW THIS LINE UNLESS YOU KNOW WHAT YOU ARE DOING
 
 set board [get_board_parts digilentinc.com:zybo*]
+# TODO
 set part xc7z010clg400-1
 
 proc usage {} {
@@ -37,7 +38,9 @@ usage: vivado -mode batch -source <script> [-tclargs <design>]
 }
 
 set script [file normalize [info script]]
+# TODO : Source dir ?
 set src [file dirname [file dirname $script]]
+# TODO
 regsub {\..*} [file tail $script] "" design
 
 if { $argc == 1 } {
@@ -59,17 +62,16 @@ puts "Frequency: $frequency_mhz MHz"
 puts "*********************************************"
 
 #############
-# Create IP #
+# Create IP # TODO
 #############
 set_part $part
 set_property board_part $board [current_project]
-read_vhdl $src/lab02/sr.vhd
-read_vhdl $src/lab02/timer.vhd
-read_vhdl $src/lab03/edge.vhd
-read_vhdl $src/lab04/counter.vhd
-read_vhdl $src/lab04/dht11_pkg.vhd
-read_vhdl $src/lab04/dht11_ctrl.vhd
-read_vhdl $src/lab06/dht11_ctrl_axi_wrapper.vhd
+read_vhdl $src/project/des/des_cst_pkg.vhd
+read_vhdl $src/project/des/des_types_pkg.vhd
+read_vhdl $src/project/des/des_body_pkg.vhd
+read_vhdl $src/project/cracking_machine.vhd
+read_vhdl $src/project/des_cracker.vhd
+read_vhdl $src/project/des_axi.vhd
 ipx::package_project -import_files -root_dir $design -vendor www.telecom-paristech.fr -library DS -force $design
 close_project
 
@@ -82,7 +84,8 @@ set_property ip_repo_paths [list ./$design] [current_fileset]
 update_ip_catalog
 create_bd_design $design
 set ip [create_bd_cell -type ip -vlnv [get_ipdefs *www.telecom-paristech.fr:DS:$design:*] $design]
-set_property -dict [list CONFIG.frequency_mhz $frequency_mhz CONFIG.start_us $start_us CONFIG.warm_us $warm_us] $ip
+# TODO : warm_us / start_us ?
+set_property -dict [list CONFIG.frequency_mhz $frequency_mhz] $ip
 set ps7 [create_bd_cell -type ip -vlnv [get_ipdefs *xilinx.com:ip:processing_system7:*] ps7]
 apply_bd_automation -rule xilinx.com:bd_rule:processing_system7 -config {make_external "FIXED_IO, DDR" apply_board_preset "1" Master "Disable" Slave "Disable" } $ps7
 set_property -dict [list CONFIG.PCW_FPGA0_PERIPHERAL_FREQMHZ $frequency_mhz] $ps7
@@ -91,8 +94,8 @@ set_property -dict [list CONFIG.PCW_M_AXI_GP0_ENABLE_STATIC_REMAP {1}] $ps7
 
 # Interconnections
 # Primary IOs
-create_bd_port -dir IO -type data data
-connect_bd_net [get_bd_pins /$design/data] [get_bd_ports data]
+# create_bd_port -dir IO -type data data
+# connect_bd_net [get_bd_pins /$design/data] [get_bd_ports data]
 create_bd_port -dir O -type data -from 3 -to 0 led
 connect_bd_net [get_bd_pins /$design/led] [get_bd_ports led]
 # ps7 - ip
@@ -106,7 +109,9 @@ set_property range 4K [get_bd_addr_segs -of_object [get_bd_intf_pins /ps7/M_AXI_
 validate_bd_design
 save_bd_design
 generate_target all [get_files $design.bd]
-synth_design -top $design
+make_wrapper -top [get_files $design.bd] -import -force
+write_hwdef -file dht11_ctrl_axi_wrapper.hwdef
+synth_design -top ${design}_wrapper
 
 # IOs
 foreach io [ array names ios ] {
@@ -127,6 +132,7 @@ opt_design
 place_design
 route_design
 write_bitstream $design
+write_sysdef -bitfile $design.bit -hwdef $design.hwdef $design.sysdef
 
 # Reports
 report_utilization -file $design.utilization.rpt
@@ -144,8 +150,8 @@ puts "Part: $part"
 puts "Source directory: $src"
 puts "Design name: $design"
 puts "Frequency: $frequency_mhz MHz"
-puts "Start delay: $start_us µs"
-puts "Warm-up delay: $warm_us µs"
+# puts "Start delay: $start_us µs"
+# puts "Warm-up delay: $warm_us µs"
 puts "*********************************************"
 puts "  bitstream in $design.bit"
 puts "  resource utilization report in $design.utilization.rpt"
