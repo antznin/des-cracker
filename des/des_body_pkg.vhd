@@ -4,6 +4,8 @@ library ieee;
 use ieee.numeric_std.all;
 use ieee.std_logic_1164.all;
 
+--! Body of des_pkg, containing all function bodies. Please see des/des_types_pkg.vhd for
+--! functions and types description
 package body des_pkg is
 
 -- Initial and final permutations
