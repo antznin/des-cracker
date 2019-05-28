@@ -1,7 +1,5 @@
 library ieee;
 use ieee.std_logic_1164.all;
---library unisim;
---use unisim.vcomponents.all;
 use std.env.all;
 use ieee.numeric_std.all;
 use work.des_pkg.all;
@@ -42,15 +40,15 @@ end entity axi;
 
 architecture rtl of axi is
 
-	signal p:   w64; -- plaintext, Base Address: 0x 000
-	signal c:   w64; -- ciphertext, BA:          0x 008
-	signal k0:  w56; -- starting secret key, BA: 0x 010
-        signal k1:  w56; -- found secret key, BA:    0x 020
+	signal p:   std_ulogic_vector(63 downto 0); -- plaintext, Base Address: 0x 000
+	signal c:   std_ulogic_vector(63 downto 0); -- ciphertext, BA:          0x 008
+	signal k0:  std_ulogic_vector(55 downto 0); -- starting secret key, BA: 0x 010
+        signal k1:  std_ulogic_vector(55 downto 0); -- found secret key, BA:    0x 020
         signal k0_lw :  std_ulogic;                         
         signal k0_mw :  std_ulogic;
         signal k_mr : std_ulogic;
         signal k_lr :  std_ulogic;
-        signal k_req : w56;
+        signal k_req : std_ulogic_vector(55 downto 0);
         signal found : std_ulogic;
         signal enable : std_ulogic;
 
@@ -60,7 +58,7 @@ architecture rtl of axi is
 
         
 begin
-	led <= k_req(30 to 33);       
+	led <= k_req(33 downto 30);       
         des_cracker : entity work.des_cracker(rtl)
           generic map (
             N => 7)
@@ -79,13 +77,16 @@ begin
             k_mr => k_mr,
             k_req => k_req
             );
-        
+        irq <= found; -- IRQ aucun impact sur l'axi // pdt 1 cc = 1  
 	process(aclk)
 		variable add: natural range 0 to 2**10 - 1; -- INUTILE
 	begin
+          
 		if rising_edge(aclk) then
 			s0_axi_awready <= '0';
 			s0_axi_wready  <= '0';
+                        k0_lw <='0';
+                        k0_mw <='0';
 			if aresetn = '0' then
 				s0_axi_bresp  <= b"00";
 				s0_axi_bvalid <= '0';
@@ -99,31 +100,29 @@ begin
                                     s0_axi_bvalid  <= '1';				
                                     if (s0_axi_awaddr >= x"000" and s0_axi_awaddr <= x"003") then
                                       s0_axi_bresp <= b"00"; -- OKAY
-                                      p(33 to 64) <= s0_axi_wdata;
+                                      p(31 downto 0) <= s0_axi_wdata;
                                       
                                     elsif (s0_axi_awaddr >= x"004" and s0_axi_awaddr <= x"007") then
                                       s0_axi_bresp <= b"00"; -- OKAY
-                                      p(1 to 32) <= s0_axi_wdata;
+                                      p(63 downto 32) <= s0_axi_wdata;
                             
                                     elsif (s0_axi_awaddr >= x"008" and s0_axi_awaddr <= x"00B") then
                                       s0_axi_bresp <= b"00"; -- OKAY
-                                      c(33 to 64) <= s0_axi_wdata;
+                                      c(31 downto 0) <= s0_axi_wdata;
                             
                                     elsif (s0_axi_awaddr >= x"00C" and s0_axi_awaddr <= x"00F") then
                                       s0_axi_bresp <= b"00"; -- OKAY
-                                      c(1 to 32) <= s0_axi_wdata;
+                                      c(63 downto 32) <= s0_axi_wdata;
 
                                     elsif (s0_axi_awaddr >= x"010" and s0_axi_awaddr <= x"013") then
                                       s0_axi_bresp <= b"00"; -- OKAY
                                       k0_lw <='1';
-                                      k0(25 to 56) <= s0_axi_wdata;
-                                      k0_lw <='0';
+                                      k0(31 downto 0) <= s0_axi_wdata;
                                           
                                     elsif (s0_axi_awaddr >= x"014" and s0_axi_awaddr <= x"017") then
                                       s0_axi_bresp <= b"00"; -- OKAY
                                       k0_mw <='1';
-                                      k0(1 to 24) <= s0_axi_wdata(24 downto 1);
-                                      k0_mw <='0';
+                                      k0(55 downto 32) <= s0_axi_wdata(23 downto 0);
 
                                     elsif (s0_axi_awaddr >= x"018" and s0_axi_awaddr <= x"027") then
                                       s0_axi_bresp <= b"10"; -- SLVERR
@@ -147,7 +146,9 @@ begin
 	process(aclk)
 	begin
 		if rising_edge(aclk) then
-			s0_axi_arready <= '0';
+                  s0_axi_arready <= '0';
+                  k_lr <='0';
+                  k_mr <='0';
 			if aresetn = '0' then
 				state_r       <= running;
 				s0_axi_rresp  <= b"00";
@@ -162,47 +163,45 @@ begin
 
                                       if (s0_axi_araddr >= x"000" and s0_axi_araddr <= x"003") then
                                         s0_axi_rresp <= b"00"; -- OKAY
-                                        s0_axi_rdata <= p(1 to 32);
+                                        s0_axi_rdata <= p(31 downto 0);
 
                                       elsif (s0_axi_araddr >= x"003" and s0_axi_araddr <= x"007") then
                                         s0_axi_rresp <= b"00"; -- OKAY
-                                        s0_axi_rdata <= p(33 to 64);
+                                        s0_axi_rdata <= p(63 downto 32);
 
                                       elsif (s0_axi_araddr >= x"008" and s0_axi_araddr <= x"00B") then
                                         s0_axi_rresp <= b"00"; -- OKAY
-                                        s0_axi_rdata <= c(1 to 32);
+                                        s0_axi_rdata <= c(31 downto 0);
 
                                       elsif (s0_axi_araddr >= x"00C"and s0_axi_araddr <= x"00F") then
                                         s0_axi_rresp <= b"00"; -- OKAY
-                                        s0_axi_rdata <= c(33 to 64);
+                                        s0_axi_rdata <= c(63 downto 32);
 
                                       elsif (s0_axi_araddr >= x"010" and s0_axi_araddr <= x"013") then
                                         s0_axi_rresp <= b"00"; -- OKAY
-                                        s0_axi_rdata <= "00000000"& k0(1 to 24);
+                                        s0_axi_rdata <= k0(31 downto 0);
 
                                       elsif (s0_axi_araddr >= x"014"and s0_axi_araddr <= x"017") then
                                         s0_axi_rresp <= b"00"; -- OKAY
-                                        s0_axi_rdata <=  k0(25 to 56);
+                                        s0_axi_rdata <= "00000000" & k0(55 downto 32);
 
                                       elsif (s0_axi_araddr >= x"018" and s0_axi_araddr <= x"01B") then
                                         s0_axi_rresp <= b"00"; -- OKAY
                                         k_mr <='1';
-                                        s0_axi_rdata <="00000000"& k_req(1 to 24);
-                                        k_mr <='0';
+                                        s0_axi_rdata <= k_req(31 downto 0);
                             
                                       elsif (s0_axi_araddr >= x"01C" and s0_axi_araddr <= x"01F") then
                                         s0_axi_rresp <= b"00"; -- OKAY
                                         k_lr <='1';
-                                        s0_axi_rdata <= k_req(25 to 56);
-                                        k_lr <='0';
+                                        s0_axi_rdata <= "00000000" & k_req(55 downto 32);
 
                                       elsif (s0_axi_araddr >= x"020" and s0_axi_araddr <= x"023") then
                                         s0_axi_rresp <= b"00"; -- OKAY
-                                        s0_axi_rdata <="00000000"& k1(1 to 24);
+                                        s0_axi_rdata <= k1(31 downto 0);
 
                                       elsif (s0_axi_araddr >= x"024"and s0_axi_araddr <= x"027") then
                                         s0_axi_rresp <= b"00"; -- OKAY
-                                        s0_axi_rdata <=  k1(25 to 56);                                        
+                                        s0_axi_rdata <=  "00000000" & k1(55 downto 32);                                        
 
                                       else        
                                         s0_axi_rresp <= b"11"; -- DECERR
@@ -218,5 +217,6 @@ begin
 				end case;
 			end if;
 		end if;
+        finish;
 	end process;
 end architecture rtl;
