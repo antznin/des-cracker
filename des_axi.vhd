@@ -76,9 +76,20 @@ begin
             k_mr => k_mr,
             k_req => k_req
             );
-        irq <= found; -- IRQ aucun impact sur l'axi // pdt 1 cc = 1  
+
+
+        process(aclk)
+        begin
+          if rising_edge(aclk) then
+            if rising_edge(found) then
+              irq <='1';
+            else
+              irq <='0';
+            end if;
+          end if;          
+       end process;
+            
 	process(aclk)
-		variable add: natural range 0 to 2**10 - 1; -- INUTILE
 	begin
           
 		if rising_edge(aclk) then
