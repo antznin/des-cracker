@@ -36,13 +36,15 @@ begin
 
 	-- Cracking process
 	process (clk)
+		variable has_started: std_ulogic := '0';
 	begin
 		if rising_edge(clk) then
 			if sresetn = '0' then
 				state_crack <= FROZEN;
-				current_k   <= starting_k;
+				current_k   <= (others => '0');
 				found_k     <= (others => '0');
 				found       <= '0';
+				has_started := '0';
 			elsif enable = '1' then
 				case state_crack is
 					when FROZEN =>
@@ -51,6 +53,10 @@ begin
 							state_crack <= RUNNING;
 						end if;
 					when RUNNING =>
+						if has_started = '0' then
+							has_started := '1';
+							current_k <= starting_k;
+						end if;
 						state_crack <= RUNNING;
 						if k0_lw = '1' then
 							state_crack <= FROZEN;

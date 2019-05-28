@@ -1,6 +1,5 @@
 library ieee;
 use ieee.std_logic_1164.all;
-use std.env.all;
 use ieee.numeric_std.all;
 use work.des_pkg.all;
 use work.des_cst.all;
@@ -65,7 +64,7 @@ begin
           port map (
             clk => aclk,
             sresetn => aresetn,
-            enable => enable,
+            enable => '1', -- temporarily
             p => p,
             c => c,
             k0 => k0,
@@ -217,6 +216,5 @@ begin
 				end case;
 			end if;
 		end if;
-        finish;
 	end process;
 end architecture rtl;
