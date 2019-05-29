@@ -78,15 +78,13 @@ begin
             );
 
 
-        process(aclk)
+        process(found)
         begin
-          if rising_edge(aclk) then
             if rising_edge(found) then
               irq <='1';
             else
               irq <='0';
-            end if;
-          end if;          
+            end if;          
        end process;
             
 	process(aclk)

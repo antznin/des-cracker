@@ -30,7 +30,6 @@ architecture rtl of cracking_machine is
 
 	signal state_crack: states_cracking;
 	signal current_k:   w56;
-        signal has_s : std_ulogic :=0;
 
 
 begin
@@ -48,7 +47,6 @@ begin
 				found_k     <= (others => '0');
 				found       <= '0';
 				has_started := '0';
-                                has_s <='0';
 			elsif enable = '1' then
 				case state_crack is
 					when FROZEN =>
@@ -57,13 +55,11 @@ begin
 							state_crack <= RUNNING;
 						end if;
 					when RUNNING =>
-						if has_s = '0' then
-                                                  has_started := '1';
-                                                  has_s <= '1';
-                                                  current_k <= starting_k;
-						end if;
+						if has_started = '0' then
+                                                has_started := '1';
+                                                current_k <= starting_k;
 						state_crack <= RUNNING;
-						if k0_lw = '1' then
+						elsif k0_lw = '1' then
 							state_crack <= FROZEN;
 						else
 							if des(p, extend_key(current_k), true) = c then
