@@ -55,10 +55,10 @@ begin
 							state_crack <= RUNNING;
 						end if;
 					when RUNNING =>
-						if has_started = '0' then
-                                                has_started := '1';
-                                                current_k <= starting_k;
 						state_crack <= RUNNING;
+						if has_started = '0' then
+							has_started := '1';
+							current_k <= starting_k;
 						elsif k0_lw = '1' then
 							state_crack <= FROZEN;
 						else
