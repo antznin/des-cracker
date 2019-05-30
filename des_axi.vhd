@@ -60,7 +60,7 @@ begin
 
     des_cracker : entity work.des_cracker(rtl)
     generic map (
-		N => 7
+		N => 12
 	)
     port map (
 		clk     => aclk,

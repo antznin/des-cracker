@@ -17,7 +17,7 @@ array set ios {
   led[2] {G14 LVCMOS33}
   led[3] {D18 LVCMOS33}
 }
-set frequency_mhz 100
+set frequency_mhz 20.7
 
 # DO NOT MODIFY ANYTHING BELOW THIS LINE UNLESS YOU KNOW WHAT YOU ARE DOING
 
