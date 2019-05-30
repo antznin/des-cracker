@@ -20,6 +20,7 @@ entity cracking_machine is
 		k0_mw:      in  std_ulogic; -- MSB of k0 written
 		k0_lw:      in  std_ulogic; -- LSB of k0 written
 		k_req:      out w56 -- Key that may be requested
+           
 	);
 end entity cracking_machine;
 
@@ -30,12 +31,14 @@ architecture rtl of cracking_machine is
 	signal state_crack: states_cracking;
 	signal current_k:   w56;
 
+
 begin
 
 	k_req <= current_k;
 
 	-- Cracking process
 	process (clk)
+		variable has_started: std_ulogic := '0';
 	begin
 		if rising_edge(clk) then
 			if sresetn = '0' then
@@ -43,6 +46,7 @@ begin
 				current_k   <= starting_k;
 				found_k     <= (others => '0');
 				found       <= '0';
+				has_started := '0';
 			elsif enable = '1' then
 				case state_crack is
 					when FROZEN =>
@@ -52,7 +56,10 @@ begin
 						end if;
 					when RUNNING =>
 						state_crack <= RUNNING;
-						if k0_lw = '1' then
+						if has_started = '0' then
+							has_started := '1';
+							current_k <= starting_k;
+						elsif k0_lw = '1' then
 							state_crack <= FROZEN;
 						else
 							if des(p, extend_key(current_k), true) = c then
