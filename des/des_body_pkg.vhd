@@ -1,4 +1,3 @@
-use std.env.all;
 use work.des_cst.all;
 library ieee;
 use ieee.numeric_std.all;

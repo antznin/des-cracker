@@ -1,7 +1,7 @@
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
-use work.des_pkg.all;
+
 use work.des_cst.all;
 
 entity axi is

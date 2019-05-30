@@ -1,9 +1,6 @@
 library ieee;
 use ieee.std_logic_1164.all;
-
-library IEEE;
-use IEEE.std_logic_1164.ALL;
-use IEEE.numeric_std.ALL;
+use ieee.numeric_std.ALL;
 
 package des_pkg is
 
