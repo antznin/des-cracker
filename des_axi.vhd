@@ -87,6 +87,7 @@ begin
 		if rising_edge(aclk) then
 			if aresetn = '0' then
 				irq <= '0';
+				cnt := 0;
 			else 
 				if found = '1' and cnt = 0 then
 					irq <= '1';
