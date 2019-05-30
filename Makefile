@@ -1,24 +1,49 @@
+#############
+# Variables #
+#############
 SRCDIR = /home/antograb/Documents/EURECOM/S2/DS/ds/project
+LIB = work
 VCOM = xvhdl
-VCOMFLAGS = --2008 --work work
+VCOMFLAGS = --2008 --work $(LIB)
+VXELAB = xelab
+VXELABFLAGS = --debug all
+VSIM = xsim
+VSIMFLAGS = --gui
 
-.PHONY: all clean
-.NOTPARALLEL:
+# Entity to compile
+TARGET_FILE = des_axi_sim
 
+##############
+# Parameters #
+##############
+.PHONY: all clean sim
+
+#########
+# Rules #
+#########
 %.tag : $(SRCDIR)/%.vhd 
 	$(VCOM) $(VCOMFLAGS) $<
-	touch $@	
+	@touch $@	
 
 DES_%.tag: $(SRCDIR)/des/%.vhd
 	$(VCOM) $(VCOMFLAGS) $<
-	touch $@	
+	@touch $@	
 
-all: des_axi_sim.tag
+all: sim
 
+sim: $(TARGET_FILE).tag 
+	$(VXELAB) $(VXELABFLAGS) $(LIB).$(TARGET_FILE)
+	$(VSIM) $(VSIMFLAGS) $(LIB).$(TARGET_FILE)
+
+comp: $(TARGET_FILE).tag
+
+clean:
+	rm -r *.tag
+
+################
+# Dependencies #
+################
 des_axi_sim.tag: des_axi.tag
 des_axi.tag: des_cracker.tag
 des_cracker.tag: cracking_machine.tag
 cracking_machine.tag: DES_des_cst_pkg.tag DES_des_types_pkg.tag DES_des_body_pkg.tag
-
-clean:
-	rm -r *.tag
