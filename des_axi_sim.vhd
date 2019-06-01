@@ -175,7 +175,10 @@ begin
 		read_sim(aclk, x"020", s0_axi_rready, s0_axi_araddr, s0_axi_arvalid);
 		wait until rising_edge(aclk);
 		read_sim(aclk, x"024", s0_axi_rready, s0_axi_araddr, s0_axi_arvalid);
-		wait until rising_edge(aclk);
+
+		for i in 1 to 10 loop
+			wait until rising_edge(aclk);
+		end loop;
 
 		finish;
 
