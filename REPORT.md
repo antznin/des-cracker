@@ -16,14 +16,14 @@ Let us first remind the objectives of the project as defined in [des_cracker.md]
 > performance results that you will get (resources usage and maximum reachable clock
 > frequency), you will then design a cracking machine by instantiating as many DES
 > encryption engines as you can and by distributing the computation effort among them.
-
+>
 > The cracking machine will be given a plaintext $`P`$, a ciphertext $`C`$, 64 bits each,
 > and a 56-bits starting secret key $`K_0`$. It will try to encrypt $`P`$ with all
 > possible 56-bits keys $`K\ge K_0`$ until the result equals $`C`$. When the match will
 > have been found the cracking machine will store the corresponding secret key $`K_1`$ in
 > a register and raise an interrupt to inform the software stack that runs on the ARM CPU
 > of the Zynq core.
-
+>
 > The cracking machine will communicate with the CPU using the AXI4 lite interface.
 
 ## Code
