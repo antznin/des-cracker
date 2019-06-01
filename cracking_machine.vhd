@@ -16,17 +16,18 @@ entity cracking_machine is
 		N:          integer
 	);
 	port (
-		clk:        in  std_ulogic; --! The clock
-		sresetn:    in  std_ulogic; --! Reset signal
-		enable:     in  std_ulogic; --! Used to enable or disable the machine
-		p:          in  w64;        --! The plaintext
-		c:          in  w64;        --! The ciphertext
-		found_k:    out w56;        --! Output found key (if ever found)
-		starting_k: in  w56;        --! Base / starting key. Where the search starts from
-		found:      out std_ulogic; --! Set to '1' if the mach in e found the key
-		k0_mw:      in  std_ulogic; --! MSB of k0 written
-		k0_lw:      in  std_ulogic; --! LSB of k0 written
-		k_req:      out w56         --! Key that may be requested
+		clk:        in  std_ulogic;
+		sresetn:    in  std_ulogic;
+		enable:     in  std_ulogic; -- "Power button"
+		p:          in  w64;
+		c:          in  w64;
+		found_k:    out w56;
+		starting_k: in  w56;
+		found:      out std_ulogic; -- Set to '1' if the mach in e found the key
+		k0_mw:      in  std_ulogic; -- MSB of k0 written
+		k0_lw:      in  std_ulogic; -- LSB of k0 written
+		k_req:      out w56 -- Key that may be requested
+           
 	);
 end entity cracking_machine;
 
@@ -37,12 +38,14 @@ architecture rtl of cracking_machine is
 	signal state_crack: states_cracking;
 	signal current_k:   w56;
 
+
 begin
 
 	k_req <= current_k;
 
-	--! The state machine
-	crack_proc: process (clk)
+	-- Cracking process
+	process (clk)
+		variable has_started: std_ulogic := '0';
 	begin
 		if rising_edge(clk) then
 			if sresetn = '0' then
@@ -50,6 +53,7 @@ begin
 				current_k   <= starting_k; -- Start back on starting_k
 				found_k     <= (others => '0');
 				found       <= '0';
+				has_started := '0';
 			elsif enable = '1' then
 				case state_crack is
 					when FROZEN =>
@@ -59,7 +63,10 @@ begin
 						end if;
 					when RUNNING =>
 						state_crack <= RUNNING;
-						if k0_lw = '1' then
+						if has_started = '0' then
+							has_started := '1';
+							current_k <= starting_k;
+						elsif k0_lw = '1' then
 							state_crack <= FROZEN;
 						else
 							if des(p, extend_key(current_k), true) = c then
