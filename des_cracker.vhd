@@ -4,36 +4,44 @@ use ieee.numeric_std.all;
 
 use work.des_pkg.all;
 
+--! @brief This entity controls the cracking machines and handles key request from CPU.
+--! @details It instanciates N machines with the
+--! generate clause, and distributes the `starting_k`s of each cracking_machine, thus
+--! distributing it as follows : starting_k_t(i) = k0 + i, where starting_k_t represents
+--! the N starting keys.
+--!
+--! This entity also handles the key request function. Its goal is to respond to a CPU
+--! request of a the last computed key. Thus, it will freeze the last computed key of the
+--! Nth machine until the transaction between the CPU and the cracker is finished.
 entity des_cracker is
 	generic (
 		N : integer := 4 -- Number of machines
 	);
 	port (
-		-- Clock and reset
-		clk:       in  std_ulogic; --! The main clock signal
-		sresetn:   in  std_ulogic;
-		enable :   in  std_ulogic;
-		p:         in  w64; -- plaintext, Base Address: 0x000
-		c:         in  w64; -- ciphertext, BA: 0x008
-		k0: 	   in  w56;
-		k1:        out w56;
-		k0_mw:     in  std_ulogic; -- MSB of k0 written
-		k0_lw:     in  std_ulogic; -- LSB of k0 written
-		k_mr:      in  std_ulogic; -- MSB of k read
-		k_lr:      in  std_ulogic; -- LSB of k read
-		found:     out std_ulogic;
-		k_req:     out w56 -- Key to send in case of requests
+		clk:       in  std_ulogic; --! The clock
+		sresetn:   in  std_ulogic; --! Reset signal
+		enable :   in  std_ulogic; --! Used to enable or disable the machine
+		p:         in  w64;		   --! The plaintext
+		c:         in  w64;        --! The ciphertext
+		k0: 	   in  w56;		   --! Received base key
+		k1:        out w56;		   --! Found key ti send
+		k0_mw:     in  std_ulogic; --! MSB of k0 written
+		k0_lw:     in  std_ulogic; --! LSB of k0 written
+		k_mr:      in  std_ulogic; --! MSB of k read
+		k_lr:      in  std_ulogic; --! LSB of k read
+		found:     out std_ulogic; --! Set to 1 when key is found
+		k_req:     out w56         --! Key to send in case of requests
 	);
 end entity des_cracker;
 
 architecture rtl of des_cracker is
 
-	type states_request is (UPDATING, FREEZE);
+	type states_request is (UPDATING, FREEZE); --! Key requests states
 	signal state_req: states_request;
 
-	signal found_t:   table_bit(1 to N); -- table containing all machine found signals
-	signal found_k_t: table56(1 to N); -- table containing all machine found_k signals
-	signal k_req_t:   table56(1 to N); -- All requested keys
+	signal found_t:   table_bit(1 to N); --! Table containing all the machine's found signals
+	signal found_k_t: table56(1 to N);   --! Table containing all the machine's found_k signals
+	signal k_req_t:   table56(1 to N);   --! Table containing all the machine's k_req signals
 
 begin
 
@@ -59,9 +67,9 @@ begin
 		);
 	end generate;
 
-	-- As soon as found_t changes, we check if an element equals '1', thus
-	-- indicating if a key has been found. It stores the found key in k1
-	process (clk, found_t)
+	--! As soon as found_t changes, we check if an element equals '1', thus
+	--! indicating if a key has been found. It stores the found key in k1.
+	found_k_proc: process (clk, found_t)
 	begin
 		if rising_edge(clk) then
 			if sresetn = '0' then
@@ -79,7 +87,7 @@ begin
 		end if;
 	end process;
 
-	-- Key request process
+	--! Key request process
 	key_req: process (clk)
 	begin
 		if rising_edge(clk) then
