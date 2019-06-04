@@ -1,9 +1,6 @@
 library ieee;
 use ieee.std_logic_1164.all;
-
-library IEEE;
-use IEEE.std_logic_1164.ALL;
-use IEEE.numeric_std.ALL;
+use ieee.numeric_std.ALL;
 
 package des_pkg is
 
@@ -40,7 +37,7 @@ package des_pkg is
 	function ks(k: w64)                             return rkey_table;
 
 	---- Main function
-	function des (p : w64; k : w56; encipher: boolean) return w64;
+	function des (p : w64; k : w64; encipher: boolean) return w64;
 
 	---- Key generator function
 	function inc(k : w56; N : integer) return w56;
