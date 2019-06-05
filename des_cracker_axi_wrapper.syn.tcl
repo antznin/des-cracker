@@ -61,9 +61,9 @@ set_property board_part $board [current_project]
 read_vhdl $src/project/des/des_cst_pkg.vhd
 read_vhdl $src/project/des/des_types_pkg.vhd
 read_vhdl $src/project/des/des_body_pkg.vhd
-read_vhdl $src/project/cracking_machine.vhd
-read_vhdl $src/project/des_cracker.vhd
-read_vhdl $src/project/des_axi.vhd
+read_vhdl $src/project/cracker/cracking_machine.vhd
+read_vhdl $src/project/cracker/des_cracker.vhd
+read_vhdl $src/project/cracker/des_axi.vhd
 set_property top $design [current_fileset]
 ipx::package_project -import_files -root_dir $design -vendor www.telecom-paristech.fr -library DS -force $design
 close_project
@@ -100,9 +100,9 @@ set_property range 4K [get_bd_addr_segs -of_object [get_bd_intf_pins /ps7/M_AXI_
 validate_bd_design
 save_bd_design
 generate_target all [get_files $design.bd]
-make_wrapper -top [get_files $design.bd] -import -force
+# make_wrapper -top [get_files $design.bd] -import -force
 write_hwdef -file axi.hwdef
-synth_design -top ${design}_wrapper
+synth_design -top ${design}
 
 # IOs
 foreach io [ array names ios ] {
