@@ -10,8 +10,9 @@ VXELABFLAGS = --debug all
 VSIM = xsim
 VSIMFLAGS = --gui
 
-# File to compile (without .tag)
-TARGET_FILE = des_axi_sim
+# Entity to compile
+ENTITY = des_axi_sim
+TARGET_FILE = CRACKER_$(ENTITY)
 
 ##############
 # Parameters #
@@ -21,7 +22,7 @@ TARGET_FILE = des_axi_sim
 #########
 # Rules #
 #########
-%.tag : $(SRCDIR)/%.vhd 
+CRACKER_%.tag : $(SRCDIR)/cracker/%.vhd 
 	$(VCOM) $(VCOMFLAGS) $<
 	@touch $@	
 
@@ -32,8 +33,8 @@ DES_%.tag: $(SRCDIR)/des/%.vhd
 all: sim
 
 sim: $(TARGET_FILE).tag 
-	$(VXELAB) $(VXELABFLAGS) $(LIB).$(TARGET_FILE)
-	$(VSIM) $(VSIMFLAGS) $(LIB).$(TARGET_FILE)
+	$(VXELAB) $(VXELABFLAGS) $(LIB).$(ENTITY)
+	$(VSIM) $(VSIMFLAGS) $(LIB).$(ENTITY)
 
 comp: $(TARGET_FILE).tag
 
@@ -49,7 +50,7 @@ clean:
 ################
 # Dependencies #
 ################
-des_axi_sim.tag: des_axi.tag
-des_axi.tag: des_cracker.tag
-des_cracker.tag: cracking_machine.tag
-cracking_machine.tag: DES_des_cst_pkg.tag DES_des_types_pkg.tag DES_des_body_pkg.tag
+CRACKER_des_axi_sim.tag: CRACKER_des_axi.tag
+CRACKER_des_axi.tag: CRACKER_des_ctrl.tag
+CRACKER_des_ctrl.tag: CRACKER_cracking_machine.tag
+CRACKER_cracking_machine.tag: DES_des_cst_pkg.tag DES_des_types_pkg.tag DES_des_body_pkg.tag

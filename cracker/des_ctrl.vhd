@@ -13,7 +13,7 @@ use work.des_pkg.all;
 --! This entity also handles the key request function. Its goal is to respond to a CPU
 --! request of a the last computed key. Thus, it will freeze the last computed key of the
 --! Nth machine until the transaction between the CPU and the cracker is finished.
-entity des_cracker is
+entity des_ctrl is
 	generic (
 		N : integer := 4 -- Number of machines
 	);
@@ -32,9 +32,9 @@ entity des_cracker is
 		found:     out std_ulogic; --! Set to 1 when key is found
 		k_req:     out w56         --! Key to send in case of requests
 	);
-end entity des_cracker;
+end entity des_ctrl;
 
-architecture rtl of des_cracker is
+architecture rtl of des_ctrl is
 
 	type states_request is (UPDATING, FREEZE); --! Key requests states
 	signal state_req: states_request;

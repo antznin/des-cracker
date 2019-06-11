@@ -58,7 +58,7 @@ begin
 
 	led <= k_req(33 downto 30);       
 
-    des_cracker : entity work.des_cracker(rtl)
+    des_ctrl : entity work.des_ctrl(rtl)
     generic map (
 		N => 12
 	)

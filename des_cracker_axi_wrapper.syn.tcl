@@ -61,9 +61,9 @@ set_property board_part $board [current_project]
 read_vhdl $src/project/des/des_cst_pkg.vhd
 read_vhdl $src/project/des/des_types_pkg.vhd
 read_vhdl $src/project/des/des_body_pkg.vhd
-read_vhdl $src/project/cracking_machine.vhd
-read_vhdl $src/project/des_cracker.vhd
-read_vhdl $src/project/des_axi.vhd
+read_vhdl $src/project/cracker/cracking_machine.vhd
+read_vhdl $src/project/cracker/des_ctrl.vhd
+read_vhdl $src/project/cracker/des_axi.vhd
 set_property top $design [current_fileset]
 ipx::package_project -import_files -root_dir $design -vendor www.telecom-paristech.fr -library DS -force $design
 close_project
@@ -82,6 +82,7 @@ apply_bd_automation -rule xilinx.com:bd_rule:processing_system7 -config {make_ex
 set_property -dict [list CONFIG.PCW_FPGA0_PERIPHERAL_FREQMHZ $frequency_mhz] $ps7
 set_property -dict [list CONFIG.PCW_USE_M_AXI_GP0 {1}] $ps7
 set_property -dict [list CONFIG.PCW_M_AXI_GP0_ENABLE_STATIC_REMAP {1}] $ps7
+set_property -dict [list CONFIG.PCW_USE_FABRIC_INTERRUPT {1} CONFIG.PCW_IRQ_F2P_INTR {1}] [get_bd_cells ps7]
 
 # Interconnections
 # Primary IOs
@@ -89,6 +90,7 @@ create_bd_port -dir O -type data -from 3 -to 0 led
 connect_bd_net [get_bd_pins /$design/led] [get_bd_ports led]
 # ps7 - ip
 apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {Master "/ps7/M_AXI_GP0" Clk "Auto" }  [get_bd_intf_pins /$ip/s0_axi]
+connect_bd_net [get_bd_pins /$ip/irq] [get_bd_pins ps7/IRQ_F2P]
 
 # Addresses ranges
 set_property offset 0x40000000 [get_bd_addr_segs -of_object [get_bd_intf_pins /ps7/M_AXI_GP0]]
@@ -98,7 +100,9 @@ set_property range 4K [get_bd_addr_segs -of_object [get_bd_intf_pins /ps7/M_AXI_
 validate_bd_design
 save_bd_design
 generate_target all [get_files $design.bd]
-synth_design -top $design
+# make_wrapper -top [get_files $design.bd] -import -force
+write_hwdef -file axi.hwdef
+synth_design -top ${design}
 
 # IOs
 foreach io [ array names ios ] {
@@ -117,6 +121,7 @@ opt_design
 place_design
 route_design
 write_bitstream -force $design
+write_sysdef -bitfile $design.bit -hwdef $design.hwdef $design.sysdef
 
 # Reports
 report_utilization -file $design.utilization.rpt
