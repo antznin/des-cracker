@@ -7,7 +7,7 @@
 
 ## Introduction
 
-Let us first remind the objectives of the project as defined in [des_cracker.md](./des_cracker.md) :
+Let us first remind the objectives of the project as defined in [des_cracker.md] :
 
 > This project aims at estimating as accurately as possible the time it would take to
 > crack the DES (Data Encryption Standard) encryption algorithm using Zybo boards. You
@@ -26,12 +26,10 @@ Let us first remind the objectives of the project as defined in [des_cracker.md]
 >
 > The cracking machine will communicate with the CPU using the AXI4 lite interface.
 
-## Code
-
 Our source code is composed mainly of three parts :
  * the DES package - which is used for encryption and decryption - is composed of
-	 combinatorial function, each representing a single module of the DES algorithm as
-	 detailed in the [official DES whitepaper](../doc/des.pdf).
+	 combinatorial functions and constants, each representing a single module of the DES algorithm as
+	 detailed in the [DES standard].
  * the cracker itself, represented in a hierarchical manner, that is from bottom level 
      to top level :
    * a cracking machine, used only to do a search of the private key. It uses the `des`
@@ -43,9 +41,38 @@ Our source code is composed mainly of three parts :
 	   requests and an IRQ)
  * a driver, which is used by the CPU to communicate with our machine
 
+## Code
+
 ### DES package
 
-### DES cracker
+We initially of designing the DES algorithm with an entity for each element of the
+algorithm. That is, for example, an entity for each permutation, the left_shift algorithm,
+etc. However we realized that it wouldn't be cost-efficient in terms of electronics, and
+we knew little about the VHDL langage. Thus, we quickly changed our design and we built
+*functions* for each part of the algorithm, along with constants for tables.
+
+#### Types and constants
+
+A huge difference to our code was defining types at the top of the des package. We
+defined a type for each `std_ulogic_vector` of fixed length (see [des_types_pkg.vhd], resulting in types named
+`w32`, `w48`, `w64` for respectively 32, 48, and 64 bits vectors. We also defined types
+for tables : `table_t`, `table64_t` and `ttable64_t` for one or two dimensional arrays
+(see [des_cst_pkg.vhd]). These types allowed our code to be cleaner throughout the whole project.
+
+We declared every table of the DES algorithm in [des_cst_pkg.vhd] using the previously mentionned types. 
+
+#### Functions
+
+The functions signatures are declared in [des_types_pkg.vhd] and
+are coded in [des_body_pkg.vhd].
+
+The functions are coded like in any langage. We will not go through each of them since
+they respect the [DES standard], thus details may be found there.
+
+However the VHDL langage has some syntax restrictions we needed to comply with, especially
+one that is recurrent : arithmetic operations on vectors must be done with `unsigned` vectors. As result we often has to cast `std_ulogic_vector` to unsigned and then cast the `unsigned` back to `std_ulogic_vector`.
+
+### DES controller
 
 ### Driver
 
@@ -53,4 +80,9 @@ Our source code is composed mainly of three parts :
 
 ## Conclusion
 
-<!--- architectures ? -->
+[des_cracker.md]: ./des_cracker.md
+[DES standard]: ../doc/des.pdf
+[des_types_pkg.vhd]: ./des/des_types_pkg.vhd
+[des_cst_pkg.vhd]: ./des/des_cst_pkg
+[des_types_pkg.vhd]: ./des/des_types_pkg.vhd
+[des_body_pkg.vhd]: ./des/des_body_pkg.vhd
