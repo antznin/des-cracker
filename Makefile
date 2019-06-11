@@ -9,6 +9,7 @@ VXELAB = xelab
 VXELABFLAGS = --debug all
 VSIM = xsim
 VSIMFLAGS = --gui
+USER = godard
 
 # Entity to compile
 ENTITY = des_axi_sim
