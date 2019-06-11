@@ -45,6 +45,6 @@ clean:
 # Dependencies #
 ################
 CRACKER_des_axi_sim.tag: CRACKER_des_axi.tag
-CRACKER_des_axi.tag: CRACKER_des_cracker.tag
-CRACKER_des_cracker.tag: CRACKER_cracking_machine.tag
+CRACKER_des_axi.tag: CRACKER_des_ctrl.tag
+CRACKER_des_ctrl.tag: CRACKER_cracking_machine.tag
 CRACKER_cracking_machine.tag: DES_des_cst_pkg.tag DES_des_types_pkg.tag DES_des_body_pkg.tag

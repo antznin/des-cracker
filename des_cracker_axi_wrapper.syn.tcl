@@ -62,7 +62,7 @@ read_vhdl $src/project/des/des_cst_pkg.vhd
 read_vhdl $src/project/des/des_types_pkg.vhd
 read_vhdl $src/project/des/des_body_pkg.vhd
 read_vhdl $src/project/cracker/cracking_machine.vhd
-read_vhdl $src/project/cracker/des_cracker.vhd
+read_vhdl $src/project/cracker/des_ctrl.vhd
 read_vhdl $src/project/cracker/des_axi.vhd
 set_property top $design [current_fileset]
 ipx::package_project -import_files -root_dir $design -vendor www.telecom-paristech.fr -library DS -force $design

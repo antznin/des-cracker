@@ -4,7 +4,7 @@ use ieee.numeric_std.all;
 
 use work.des_pkg.all;
 
-entity des_cracker is
+entity des_ctrl is
 	generic (
 		N : integer := 4 -- Number of machines
 	);
@@ -24,9 +24,9 @@ entity des_cracker is
 		found:     out std_ulogic;
 		k_req:     out w56 -- Key to send in case of requests
 	);
-end entity des_cracker;
+end entity des_ctrl;
 
-architecture rtl of des_cracker is
+architecture rtl of des_ctrl is
 
 	type states_request is (UPDATING, FREEZE);
 	signal state_req: states_request;

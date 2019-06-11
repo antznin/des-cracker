@@ -7,16 +7,16 @@ use ieee.math_real.all;
 
 use work.des_pkg.all;
 
-entity des_cracker_sim is
+entity des_ctrl_sim is
 	port (
 		k1:    out w56;
 		k_req: out w56; -- Key to send in case of requests
 		found: out std_ulogic
 	);
-end entity des_cracker_sim;
+end entity des_ctrl_sim;
 
 
-architecture rtl of des_cracker_sim is
+architecture rtl of des_ctrl_sim is
 
 	signal clk:      std_ulogic;
 	signal sresetn:  std_ulogic;
@@ -31,7 +31,7 @@ architecture rtl of des_cracker_sim is
     
 begin   
 
-	cracker : entity work.des_cracker(rtl)
+	cracker : entity work.des_ctrl(rtl)
 	generic map ( N => 7 )
 	port map (
 		clk     => clk,
