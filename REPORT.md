@@ -98,6 +98,21 @@ The state machine is driven by two signals :
 
 ## Synthesis results
 
+The [synthesis script] was based off another project and was adapted to our project.
+
+The synthesis allowed us to get timing and utilization reports for our project. Since the
+goal is to optimize the cracker to find the key as fast as possible, we varied the number
+of machines and the clock frequency so that the utilization and timing were maxed out.
+
+Thanks to our modular design of the controller, we were able to make the number of
+machines vary one by one.
+
+The final results led to these parameters :
+	* `N` = 12 : 12 machines can run in parallel without using all the available space. By
+		looking at the utilization report we use around 98% of the card ;
+	* `frequency_mhz` = 20.7 : the maximum frequency we can get is 20.7 MHz. With this
+		parameter we got a Worst Negative Slack of 0.1 
+
 ## Conclusion
 
 [des_cracker.md]: ./des_cracker.md
@@ -106,3 +121,4 @@ The state machine is driven by two signals :
 [des_cst_pkg.vhd]: ./des/des_cst_pkg
 [des_types_pkg.vhd]: ./des/des_types_pkg.vhd
 [des_body_pkg.vhd]: ./des/des_body_pkg.vhd
+[synthesis script]: ./des_cracker_axi_wrapper.syn.tcl
