@@ -1,5 +1,7 @@
 # DES Cracker Report
 
+The full documentation (including this report) may be found at the following link : http://studwww.eurecom.fr/~godard/.
+
 ## Contributors
 
  * Abbé Ahmed-Khalifa
@@ -59,7 +61,7 @@ defined a type for each `std_ulogic_vector` of fixed length (see [des_types_pkg.
 for tables : `table_t`, `table64_t` and `ttable64_t` for one or two dimensional arrays
 (see [des_cst_pkg.vhd]). These types allowed our code to be cleaner throughout the whole project.
 
-We declared every table of the DES algorithm in [des_cst_pkg.vhd] using the previously mentionned types. 
+We declared every table of the [DES standard] in [des_cst_pkg.vhd] using the previously mentionned types. 
 
 #### Functions
 
@@ -72,7 +74,25 @@ they respect the [DES standard], thus details may be found there.
 However the VHDL langage has some syntax restrictions we needed to comply with, especially
 one that is recurrent : arithmetic operations on vectors must be done with `unsigned` vectors. As result we often has to cast `std_ulogic_vector` to unsigned and then cast the `unsigned` back to `std_ulogic_vector`.
 
-### DES controller
+### DES cracker
+
+#### The cracking machine
+
+The cracking machine represents the core or the cracking process.
+
+It is given a plaintext p and a ciphertext c and looks for the corresponding encryption key. It uses a simple state machine composed of two states :
+ * FROZEN : the machine is frozen and thus does nothing and waits for `k0_mw` to be set
+ * RUNNING : the machine runs, and thus computes the DES encryption of a current key (dynamic) and compares its output with p. The current key is incremented by N, a generic parameter, allowing multiples instances of this entity to search for the key.
+
+The state machine is driven by two signals :
+ * `k0_lw` : when the least significant bits of k0 are written, the machine goes from
+	 FROZEN to RUNNING
+ * `k0_mw` : when the most significant bits of k0 are written, the machine goes from
+	 RUNNING to FROZEN
+
+#### The controller
+
+#### The AXI Lite wrapper
 
 ### Driver
 
