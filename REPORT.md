@@ -4,8 +4,8 @@ The full documentation (including this report) may be found at the following lin
 
 ## Contributors
 
- * Abbe Ahmed-Khalifa
- * Antonin Godard
+ * Abbe Ahmed-Khalifa, ahmeda@eurecom.fr
+ * Antonin Godard, godard@eurecom.fr
 
 ## Introduction
 
@@ -36,9 +36,9 @@ Our source code is composed mainly of three parts :
      to top level :
    * a cracking machine, used only to do a search of the private key. It uses the `des`
 	   function of the DES package
-   * a "DES cracker", which instanciates `N` cracking machines in parallel. Each of these
+   * a DES controller, which instanciates `N` cracking machines in parallel. Each of these
 	   machines do the search on a particular domain (all complementary to divide the
-	   searching time in N)
+	   searching time by N)
    * a AXI Lite wrapper, used to communicate with the Zybo board CPU (read / write
 	   requests and an IRQ)
  * a driver, which is used by the CPU to communicate with our machine
@@ -47,16 +47,16 @@ Our source code is composed mainly of three parts :
 
 ### DES package
 
-We initially of designing the DES algorithm with an entity for each element of the
+We initially thought of designing the DES algorithm with an entity for each element of the
 algorithm. That is, for example, an entity for each permutation, the left_shift algorithm,
 etc. However we realized that it wouldn't be cost-efficient in terms of electronics, and
-we knew little about the VHDL langage. Thus, we quickly changed our design and we built
-*functions* for each part of the algorithm, along with constants for tables.
+we knew little about the VHDL language. Thus, we quickly changed our design and we built
+*functions* for each part of the algorithm, along with *constants* for tables.
 
 #### Types and constants
 
 A huge difference to our code was defining types at the top of the des package. We
-defined a type for each `std_ulogic_vector` of fixed length (see [des_types_pkg.vhd], resulting in types named
+defined a type for each `std_ulogic_vector` of fixed length (see [des_types_pkg.vhd]), resulting in types named
 `w32`, `w48`, `w64` for respectively 32, 48, and 64 bits vectors. We also defined types
 for tables : `table_t`, `table64_t` and `ttable64_t` for one or two dimensional arrays
 (see [des_cst_pkg.vhd]). These types allowed our code to be cleaner throughout the whole project.
@@ -68,11 +68,13 @@ We declared every table of the [DES standard] in [des_cst_pkg.vhd] using the pre
 The functions signatures are declared in [des_types_pkg.vhd] and
 are coded in [des_body_pkg.vhd].
 
-The functions are coded like in any langage. We will not go through each of them since
+The functions are coded like in any language. We will not go through each of them since
 they respect the [DES standard], thus details may be found there.
 
-However the VHDL langage has some syntax restrictions we needed to comply with, especially
-one that is recurrent : arithmetic operations on vectors must be done with `unsigned` vectors. As result we often has to cast `std_ulogic_vector` to unsigned and then cast the `unsigned` back to `std_ulogic_vector`.
+However the VHDL language has some syntax restrictions we needed to comply with, especially
+one that is recurrent : arithmetic operations on vectors must be done with `unsigned` vectors. 
+As result we often have to cast `std_ulogic_vector` to unsigned and then cast the `unsigned` 
+back to `std_ulogic_vector`.
 
 ### DES cracker
 
@@ -80,41 +82,59 @@ one that is recurrent : arithmetic operations on vectors must be done with `unsi
 
 The cracking machine represents the core or the cracking process.
 
-It is given a plaintext p and a ciphertext c and looks for the corresponding encryption key. It uses a simple state machine composed of two states :
- * FROZEN : the machine is frozen and thus does nothing and waits for `k0_mw` to be set
- * RUNNING : the machine runs, and thus computes the DES encryption of a current key (dynamic) and compares its output with p. The current key is incremented by N, a generic parameter, allowing multiples instances of this entity to search for the key.
+It is given a plaintext p and a ciphertext c and looks for the corresponding encryption key. 
+It uses a simple state machine composed of two states :
+ * `FROZEN` : the machine is frozen and thus does nothing and waits for `k0_mw` to be set
+ * `RUNNING` : the machine runs, and thus computes the DES encryption of a current key (dynamic) 
+   and compares its output with p. The current key is incremented by N, a generic parameter, 
+   allowing multiples instances of this entity to search for the key.
 
 The state machine is driven by two signals :
  * `k0_lw` : when the least significant bits of k0 are written, the machine goes from
-	 FROZEN to RUNNING
+	 `FROZEN` to `RUNNING`
  * `k0_mw` : when the most significant bits of k0 are written, the machine goes from
-	 RUNNING to FROZEN
+	 `RUNNING` to `FROZEN`
+
+Our choice of design is to do one encipher per clock cycle.
 
 #### The controller  
 
 The controller represents the interface between the AXI wrapper and the cracking machine.  
-It has two purposes: the controller generates N machines and sends them the starting keys, il also enables us to read the current key requested.   
-To do so, it uses a state machine composed of two states :  
+It has two purposes: the controller generates N machines and sends them the starting keys.
+
+It also allows us to read the current key requested with a simple state machine of two
+states :
+ * `UPDATING` : in this state the `k_req` signal is always assigned the value of
+	 `current_k` at each clock cycle
+ * `FREEZE` : in this state the `k_req` signal is frozen (nothing is assigned to it) and
+	 waits for the transaction between the CPU and the slave to be finished
+
+The machine is driven by two signals :  
  * `k_lr` : when the least significant bits of k are read, the machine goes from UPDATING to FREEZE  
  * `k_mr` : when the most significant bits of k are read, the machine goes from FREEZE to UPDATING  
 
 #### The AXI Lite wrapper
 
-
 The purpose of the AXI Lite Wrapper is to enable the CPU to communicate with the cracker.    
 It instanciates and maps one controller. Furthermore, it has three main purposes : it handles the IRQ request,  
-it uses two state machines; one for the read requests and another one for the write requests.  
-The first state machine used for the read requests is composed of two states :  
- * when the slave is ready, the machine goes from waiting to running
+it uses two state machines; one for the write requests and another one for the read requests.  
+
+The first state machine used for the write requests is composed of two states :  
+ * when the slave is ready, the machine goes from `waiting` to `running`
  * when the data and the write address have been considered as valid, the CPU writes  
-   into the slave and the machine goes from running to waiting  
-The second one also is composed of two states :  
- * when the slave is ready, the machine goes from waiting to running
+   into the slave and the machine goes from `running` to `waiting`  
+
+The second one used for read requests also is composed of two states :  
+ * when the slave is ready, the machine goes from `waiting` to `running`
  * when the read address has been considered as valid, the CPU reads  
-   the data in the slave and the machine goes from running to waiting
+   the data in the slave and the machine goes from `running` to `waiting`
 
 
 ### Driver
+
+To this date the driver hasn't been finished.
+
+We also encountered a bug when writing into the `k0` address space : it crashes the OS.
 
 ## Synthesis results
 
