@@ -107,7 +107,7 @@ it uses two state machines; one for the read requests and another one for the wr
 The first state machine used for the read requests is composed of two states :  
  * when the slave is ready, the machine goes from waiting to running
  * when the data and the write address have been considered as valid, the CPU writes  
-   into the slave and the machine goes from running to waiting
+   into the slave and the machine goes from running to waiting  
 The second one also is composed of two states :  
  * when the slave is ready, the machine goes from waiting to running
  * when the read address has been considered as valid, the CPU reads  
