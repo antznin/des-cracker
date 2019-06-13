@@ -32,7 +32,7 @@ Our source code is composed mainly of three parts :
  * the DES package - which is used for encryption and decryption - is composed of
 	 combinatorial functions and constants, each representing a single module of the DES algorithm as
 	 detailed in the [DES standard].
- * the cracker itself, represented in a hierarchical manner, that is from bottom level 
+ * the cracker itself, represented in a hierarchical manner, that is from bottom level
      to top level :
    * a cracking machine, used only to do a search of the private key. It uses the `des`
 	   function of the DES package
@@ -61,7 +61,7 @@ defined a type for each `std_ulogic_vector` of fixed length (see [des_types_pkg.
 for tables : `table_t`, `table64_t` and `ttable64_t` for one or two dimensional arrays
 (see [des_cst_pkg.vhd]). These types allowed our code to be cleaner throughout the whole project.
 
-We declared every table of the [DES standard] in [des_cst_pkg.vhd] using the previously mentionned types. 
+We declared every table of the [DES standard] in [des_cst_pkg.vhd] using the previously mentionned types.
 
 #### Functions
 
@@ -72,14 +72,14 @@ The functions are coded like in any language. We will not go through each of the
 they respect the [DES standard], thus details may be found there.
 
 However the VHDL language has some syntax restrictions we needed to comply with, especially
-one that is recurrent : arithmetic operations on vectors must be done with `unsigned` vectors. 
-As result we often have to cast `std_ulogic_vector` to unsigned and then cast the `unsigned` 
-back to `std_ulogic_vector`.  
-   
-##### Simulations  
-  
-Finally, we have simulated our functions to check if they work well. To do so, we made different tests :  
- * for the permutations functions IP and IIP, we use as the input of IIP the output of IP  
+one that is recurrent : arithmetic operations on vectors must be done with `unsigned` vectors.
+As result we often have to cast `std_ulogic_vector` to unsigned and then cast the `unsigned`
+back to `std_ulogic_vector`.
+
+##### Simulations
+
+Finally, we have simulated our functions to check if they work well. To do so, we made different tests :
+ * for the permutations functions IP and IIP, we use as the input of IIP the output of IP
    after these permutations the output should be identical to the initial input only if the functions work.
  * for the shift function, we just compare our input and our output to see if it has been well shifted
 
@@ -89,17 +89,17 @@ Finally, we have simulated our functions to check if they work well. To do so, w
 
 The cracking machine represents the core or the cracking process.
 
-It is given a plaintext p and a ciphertext c and looks for the corresponding encryption key. 
+It is given a plaintext p and a ciphertext c and looks for the corresponding encryption key.
 It uses a simple state machine composed of two states :
  * `FROZEN` : the machine is frozen and thus does nothing and waits for `k0_mw` to be set
- * `RUNNING` : the machine runs, and thus computes the DES encryption of a current key (dynamic) 
-   and compares its output with p. The current key is incremented by N, a generic parameter, 
+ * `RUNNING` : the machine runs, and thus computes the DES encryption of a current key (dynamic)
+   and compares its output with p. The current key is incremented by N, a generic parameter,
    allowing multiples instances of this entity to search for the key.
 
 The state machine is driven by two signals :
- * `k0_lw` : when the least significant bits of k0 are written, the machine goes from
+ * `k0_lw` : when the least significant bits of `k0` are written, the machine goes from
 	 `FROZEN` to `RUNNING`
- * `k0_mw` : when the most significant bits of k0 are written, the machine goes from
+ * `k0_mw` : when the most significant bits of `k0` are written, the machine goes from
 	 `RUNNING` to `FROZEN`
 
 Our choice of design is to do one full encipher per clock cycle.
@@ -124,9 +124,9 @@ does step by step :
 	everything. Then we start the machine and we do not stop the simulation until the key
 	is found. When it is, the simulation stops.
 
-#### The controller  
+#### The controller
 
-The controller represents the interface between the AXI wrapper and the cracking machine.  
+The controller represents the interface between the AXI wrapper and the cracking machine.
 It has two purposes: the controller generates N machines and sends them the starting keys.
 
 It also allows us to read the current key requested with a simple state machine of two
@@ -136,39 +136,43 @@ states :
  * `FREEZE` : in this state the `k_req` signal is frozen (nothing is assigned to it) and
 	 waits for the transaction between the CPU and the slave to be finished
 
-The machine is driven by two signals :  
- * `k_lr` : when the least significant bits of k are read, the machine goes from UPDATING to FREEZE  
- * `k_mr` : when the most significant bits of k are read, the machine goes from FREEZE to UPDATING  
-    
-##### Simulations  
-  
-Finally to simulate our controller, we generate seven cracking machines and map them, we generate a clock signal and initialize the internal signals which represent the plain text, the cyphertext, the starting key and the flags used for writting k0 and reading k.  
-Then we have made several tests divided in two processes:  
- 1. In the first process : 
-  * we test the signal sresetn by forcing it to zero for 10 clock cycles  
-  * then, we test the machines by setting a value to the k0 flags at random time thus it should make the state machine change its state  
-  * finally, we test if the cracking machines are able to find the secret key and we make the process stop  
- 1. concurrently in the second process :  
-  we design another process which will simulate the key requests. It will requests  
+The machine is driven by two signals :
+ * `k_lr` : when the least significant bits of `k` are read, the machine goes from UPDATING to FREEZE
+ * `k_mr` : when the most significant bits of `k` are read, the machine goes from FREEZE to UPDATING
+
+##### Simulation
+
+Finally to simulate our controller, we generate seven cracking machines and map them, we
+generate a clock signal and initialize the internal signals which represent the plain
+text, the cyphertext, the starting key and the flags used for writting `k0` and reading `k`.
+
+Then we have made several tests divided in two processes:
+ 1. In the first process :
+   * we test the signal sresetn by forcing it to zero for 10 clock cycles
+   * then, we test the machines by setting a value to the `k0` flags at random time thus it
+     should make the state machine change its state
+   * finally, we test if the cracking machines are able to find the secret key and we make the process stop
+ 1. concurrently in the second process :
+  we design another process which will simulate the key requests. It will requests
   periodically the last of the computed keys as we would do to track the progress of the cracking
 
 
 #### The AXI Lite wrapper
 
-The purpose of the AXI Lite Wrapper is to enable the CPU to communicate with the cracker.    
-It instanciates and maps one controller. Furthermore, it has three main purposes : it handles the IRQ request,  
-it uses two state machines; one for the write requests and another one for the read requests.  
+The purpose of the AXI Lite Wrapper is to enable the CPU to communicate with the cracker.
+It instanciates and maps one controller. Furthermore, it has three main purposes : it handles the IRQ request,
+it uses two state machines; one for the write requests and another one for the read requests.
 
-The first state machine used for the write requests is composed of two states :  
+The first state machine used for the write requests is composed of two states :
  * when the slave is ready, the machine goes from `waiting` to `running`
- * when the data and the write address have been considered as valid, the CPU writes  
-   into the slave and the machine goes from `running` to `waiting`  
+ * when the data and the write address have been considered as valid, the CPU writes
+   into the slave and the machine goes from `running` to `waiting`
 
-The second one used for read requests also is composed of two states :  
+The second one used for read requests also is composed of two states :
  * when the slave is ready, the machine goes from `waiting` to `running`
- * when the read address has been considered as valid, the CPU reads  
-   the data in the slave and the machine goes from `running` to `waiting`  
-  
+ * when the read address has been considered as valid, the CPU reads
+   the data in the slave and the machine goes from `running` to `waiting`
+
 ##### The simulation
 
 ### Driver
@@ -192,7 +196,7 @@ The final results led to these parameters :
  * `N` = 12 : 12 machines can run in parallel without using all the available space. By
  	looking at the utilization report we use around 98% of the card ;
  * `frequency_mhz` = 20.7 : the maximum frequency we can get is 20.7 MHz. With this
- 	parameter we got a Worst Negative Slack of 0.1 
+ 	parameter we got a Worst Negative Slack of 0.1
 
 ## Conclusion
 
