@@ -97,6 +97,26 @@ The state machine is driven by two signals :
 
 Our choice of design is to do one encipher per clock cycle.
 
+##### Simulation
+
+Every input and outputs are respectively mapped to internal signals (to be driven) and
+outputs (to be observed).
+
+The simulation has a simple clock process for simulating a clock.
+
+A process is in charge of simulating the behavior of the machine itself. This is what it
+does step by step :
+ 1. Initialize the inputs (such as `p`, `c`, `starting_k`, etc) to known values so that we
+	can verify the outputs with pre-known values
+ 1. We test the response behavior when setting `sresetn` and `enable` to `0` (separately)
+ 1. We test the response behavior when setting `sresetn` and `enable` to `0` together and
+	randomly. At this step we also test the behavior of the machine when setting `k0_lw`
+	and `k0_mw` to `1` for one clock period. The machine should start for 10 clock cycles
+	and then stop.
+ 1. The last step consists in searching for the key. Before doing that we reset
+	everything. Then we start the machine and we do not stop the simulation until the key
+	is found. When it is, the simulation stops.
+
 #### The controller  
 
 The controller represents the interface between the AXI wrapper and the cracking machine.  
