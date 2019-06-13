@@ -39,9 +39,9 @@ end entity axi;
 
 architecture rtl of axi is
 
-	signal p:       std_ulogic_vector(63 downto 0); -- plaintext, Base Address: 0x 000
-	signal c:       std_ulogic_vector(63 downto 0); -- ciphertext, BA:          0x 008
-	signal k0:      std_ulogic_vector(55 downto 0); -- starting secret key, BA: 0x 010
+    signal p:       std_ulogic_vector(63 downto 0); -- plaintext, Base Address: 0x 000
+    signal c:       std_ulogic_vector(63 downto 0); -- ciphertext, BA:          0x 008
+    signal k0:      std_ulogic_vector(55 downto 0); -- starting secret key, BA: 0x 010
     signal k1:      std_ulogic_vector(55 downto 0); -- found secret key, BA:    0x 020
     signal k0_lw :  std_ulogic;
     signal k0_mw :  std_ulogic;
@@ -56,7 +56,7 @@ architecture rtl of axi is
         
 begin
 
-	led <= k_req(33 downto 30);       
+    led <= k_req(33 downto 30);       
 
     des_ctrl : entity work.des_ctrl(rtl)
     generic map (

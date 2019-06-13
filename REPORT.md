@@ -4,7 +4,7 @@ The full documentation (including this report) may be found at the following lin
 
 ## Contributors
 
- * Abbé Ahmed-Khalifa
+ * Abbe Ahmed-Khalifa
  * Antonin Godard
 
 ## Introduction
@@ -90,9 +90,29 @@ The state machine is driven by two signals :
  * `k0_mw` : when the most significant bits of k0 are written, the machine goes from
 	 RUNNING to FROZEN
 
-#### The controller
+#### The controller  
+
+The controller represents the interface between the AXI wrapper and the cracking machine.  
+It has two purposes: the controller generates N machines and sends them the starting keys, il also enables us to read the current key requested.   
+To do so, it uses a state machine composed of two states :  
+ * `k_lr` : when the least significant bits of k are read, the machine goes from UPDATING to FREEZE  
+ * `k_mr` : when the most significant bits of k are read, the machine goes from FREEZE to UPDATING  
 
 #### The AXI Lite wrapper
+
+
+The purpose of the AXI Lite Wrapper is to enable the CPU to communicate with the cracker.    
+It instanciates and maps one controller. Furthermore, it has three main purposes : it handles the IRQ request,  
+it uses two state machines; one for the read requests and another one for the write requests.  
+The first state machine used for the read requests is composed of two states :  
+ * when the slave is ready, the machine goes from waiting to running
+ * when the data and the write address have been considered as valid, the CPU writes  
+   into the slave and the machine goes from running to waiting
+The second one also is composed of two states :  
+ * when the slave is ready, the machine goes from waiting to running
+ * when the read address has been considered as valid, the CPU reads  
+   the data in the slave and the machine goes from running to waiting
+
 
 ### Driver
 
