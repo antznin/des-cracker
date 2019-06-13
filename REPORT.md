@@ -102,7 +102,7 @@ The state machine is driven by two signals :
  * `k0_mw` : when the most significant bits of k0 are written, the machine goes from
 	 `RUNNING` to `FROZEN`
 
-Our choice of design is to do one encipher per clock cycle.
+Our choice of design is to do one full encipher per clock cycle.
 
 ##### Simulation
 
@@ -189,12 +189,22 @@ Thanks to our modular design of the controller, we were able to make the number 
 machines vary one by one.
 
 The final results led to these parameters :
-	* `N` = 12 : 12 machines can run in parallel without using all the available space. By
-		looking at the utilization report we use around 98% of the card ;
-	* `frequency_mhz` = 20.7 : the maximum frequency we can get is 20.7 MHz. With this
-		parameter we got a Worst Negative Slack of 0.1 
+ * `N` = 12 : 12 machines can run in parallel without using all the available space. By
+ 	looking at the utilization report we use around 98% of the card ;
+ * `frequency_mhz` = 20.7 : the maximum frequency we can get is 20.7 MHz. With this
+ 	parameter we got a Worst Negative Slack of 0.1 
 
 ## Conclusion
+
+Our choice of architecture was to do a full encryption per clock cycles. It has been revealed
+thanks to other groups doing the same project that this may not be the best approach. We
+could have done two things to improve our cracker :
+ * optimize the functions and the register usage in our code to instanciate more machines
+	 and thus find the key faster
+ * change the architecture to a pipeline architecture. That is not computing a full
+	 encryption per clock cycle but rather computing one or more round of the DES
+	 algorithm at each clock cycle. That would have allowed us to increase the clock
+	 frequency of our design without adding too much board utilization
 
 [des_cracker.md]: ./des_cracker.md
 [DES standard]: ../doc/des.pdf
