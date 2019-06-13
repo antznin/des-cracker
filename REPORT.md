@@ -74,7 +74,14 @@ they respect the [DES standard], thus details may be found there.
 However the VHDL language has some syntax restrictions we needed to comply with, especially
 one that is recurrent : arithmetic operations on vectors must be done with `unsigned` vectors. 
 As result we often have to cast `std_ulogic_vector` to unsigned and then cast the `unsigned` 
-back to `std_ulogic_vector`.
+back to `std_ulogic_vector`.  
+   
+##### Simulations  
+  
+Finally, we have simulated our functions to check if they work well. To do so, we made different tests :  
+ * for the permutations functions IP and IIP, we use as the input of IIP the output of IP  
+   after these permutations the output should be identical to the initial input only if the functions work.
+ * for the shift function, we just compare our input and our output to see if it has been well shifted
 
 ### DES cracker
 
@@ -132,6 +139,19 @@ states :
 The machine is driven by two signals :  
  * `k_lr` : when the least significant bits of k are read, the machine goes from UPDATING to FREEZE  
  * `k_mr` : when the most significant bits of k are read, the machine goes from FREEZE to UPDATING  
+    
+##### Simulations  
+  
+Finally to simulate our controller, we generate seven cracking machines and map them, we generate a clock signal and initialize the internal signals which represent the plain text, the cyphertext, the starting key and the flags used for writting k0 and reading k.  
+Then we have made several tests divided in two processes:  
+ 1. In the first process : 
+  * we test the signal sresetn by forcing it to zero for 10 clock cycles  
+  * then, we test the machines by setting a value to the k0 flags at random time thus it should make the state machine change its state  
+  * finally, we test if the cracking machines are able to find the secret key and we make the process stop  
+ 1. concurrently in the second process :  
+  we design another process which will simulate the key requests. It will requests  
+  periodically the last of the computed keys as we would do to track the progress of the cracking
+
 
 #### The AXI Lite wrapper
 
@@ -147,8 +167,9 @@ The first state machine used for the write requests is composed of two states :
 The second one used for read requests also is composed of two states :  
  * when the slave is ready, the machine goes from `waiting` to `running`
  * when the read address has been considered as valid, the CPU reads  
-   the data in the slave and the machine goes from `running` to `waiting`
-
+   the data in the slave and the machine goes from `running` to `waiting`  
+  
+##### The simulation
 
 ### Driver
 

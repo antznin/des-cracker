@@ -81,24 +81,24 @@ begin
 
 	--! Process used to trigger irq to 1 during one clock cycle
 	--! when found is set.
-    irq_trigger: process(aclk)
-		variable cnt: natural := 0;
-	begin
-		if rising_edge(aclk) then
-			if aresetn = '0' then
-				irq <= '0';
-				cnt := 0;
-			else 
-				if found = '1' and cnt = 0 then
-					irq <= '1';
-					cnt := 1;
-				elsif cnt = 1 then
-					irq <= '0';
-					cnt := 2;
-				end if;
-			end if;          
-		end if;
-    end process;
+        irq_trigger: process(aclk) 
+                    variable cnt: natural := 0;
+            begin
+                    if rising_edge(aclk) then
+                            if aresetn = '0' then
+                                    irq <= '0';
+                                    cnt := 0;
+                            else 
+                                    if found = '1' and cnt = 0 then
+                                            irq <= '1';
+                                            cnt := 1;
+                                    elsif cnt = 1 then
+                                            irq <= '0';
+                                            cnt := 2;
+                                    end if;
+                            end if;          
+                    end if;
+        end process;
             
 	process(aclk)
 	begin
