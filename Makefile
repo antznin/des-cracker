@@ -4,7 +4,7 @@
 
 ## TO MODIFY ##
 # The source directory of the project
-SRCDIR = /homes/godard/Documents/ds/project
+SRCDIR = /homes/ahmeda/ds/project
 # Name of the library
 LIB = work
 # Variable used to choose between Xilixinx Vivado (V) or Modelsim (M)
@@ -17,7 +17,7 @@ ENTITY = des_axi_sim
 # simulation runs.
 TARGET_FILE = CRACKER_$(ENTITY)
 # Your username
-USER = godard
+USER = ahmeda
 ###############
 
 # Vivado variables

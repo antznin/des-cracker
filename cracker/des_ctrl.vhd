@@ -69,7 +69,7 @@ begin
 
 	--! As soon as found_t changes, we check if an element equals '1', thus
 	--! indicating if a key has been found. It stores the found key in k1.
-	found_k_proc: process (clk, found_t)
+	found_k_proc: process (clk)
 	begin
 		if rising_edge(clk) then
 			if sresetn = '0' then
@@ -81,7 +81,6 @@ begin
 						k1 <= found_k_t(i);
 						found <= '1';
 					end if;
-					-- TODO : IRQ ??
 				end loop;
 			end if;
 		end if;

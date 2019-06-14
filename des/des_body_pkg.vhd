@@ -48,7 +48,8 @@ function left_shift (w:w28; amount : natural) return w28 is
 	   elsif amount=1 then
 	      return w(2 to 28) & w(1);
 	   else
-	      assert false report "ERROR" severity failure;
+             assert false report "ERROR" severity failure;
+             return (others =>'0');
 	   end if;
 end left_shift;
 
@@ -59,7 +60,8 @@ function right_shift (w:w28; amount : natural) return w28 is
 	   elsif amount=1 then
 	      return w(28) & w(1 to 27);
 	   else
-	      assert false report "ERROR" severity failure;
+             assert false report "ERROR" severity failure;
+             return (others =>'0');
 	   end if;
 end right_shift;
 

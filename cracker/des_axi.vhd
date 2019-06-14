@@ -53,11 +53,10 @@ architecture rtl of axi is
 
     type states is (running, waiting);
     signal state_r, state_w: states;
-        
+    
 begin
 
     led <= k_req(33 downto 30);       
-
     des_ctrl : entity work.des_ctrl(rtl)
     generic map (
 		N => 12
