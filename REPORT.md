@@ -82,6 +82,12 @@ Finally, we have simulated our functions to check if they work well. To do so, w
  * for the permutations functions IP and IIP, we use as the input of IIP the output of IP
    after these permutations the output should be identical to the initial input only if the functions work.
  * for the shift function, we just compare our input and our output to see if it has been well shifted
+ * for the des function, we test the ciphering of four plaintexts with different keys (we can check if they are ciphered well thanks to a Python file we use)
+
+![simulation de le la fonction DES](./figures/simulation-des1.png)
+
+here above the simulation of the DES function
+
 
 ### DES cracker
 
