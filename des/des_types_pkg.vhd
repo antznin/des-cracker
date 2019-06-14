@@ -65,7 +65,7 @@ package des_pkg is
 	--!
 	--! It reverses the round keys order as described in the DES algorithm (reversible
 	--! cipher).
-	function des (p : w64; k : w56; encipher: boolean) return w64;
+	function des (p : w64; k : w64; encipher: boolean) return w64;
 
 	---------------------------------
 	-- Key incrementation function --
