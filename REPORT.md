@@ -88,7 +88,7 @@ Finally, we have simulated our functions to check if they work well. To do so, w
 
 ![simulation de le la fonction DES](./figures/simulation-des1.png)
 
-here above the simulation of the DES function
+Here above the simulation of the DES function
 
 
 ### DES cracker
