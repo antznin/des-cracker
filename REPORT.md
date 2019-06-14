@@ -175,6 +175,14 @@ The second one used for read requests also is composed of two states :
 
 ##### The simulation
 
+Finally, to simulate our AXI we will use two processes : one for generating the clock signal and another one to test our instanciation of our entity.  
+Here below is the description of the tests of the second process:   
+ 1. first, we write our plaintext and ciphertext then we read their values
+ 1. we write the starting key and we read its value after that to be sure
+ 1. then as the cracking machines start running after writing the starting key, we check the current key continuously until it finds the secret key
+ 1. when the while loop stops and the secret key is found, we make a last read request to get the value of the secret key
+
+
 ### Driver
 
 To this date the driver hasn't been finished.
