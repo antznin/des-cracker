@@ -182,7 +182,7 @@ Here below is the description of the tests of the second process:
  1. then as the cracking machines start running after writing the starting key, we check the current key continuously until it finds the secret key
  1. when the while loop stops and the secret key is found, we make a last read request to get the value of the secret key
 
-! [simulation de l'AXI][simulation-axi1.png ]  
+![simulation de l'AXI](./figures/simulation-axi1.png)
 Here above, we have a simulation of the AXI : we displayed only the most pertinent signals from the AXI, the cracker and the cracking machine. We can see
 that the first cracking machine stops when the secret key _h0000408_ is found. Thus the found signals of the AXI, the cracker and the cracking machine are set to 1, the IRQ 
 is set to 1 for one clock cycle and the cracking machine is frozen after that.
