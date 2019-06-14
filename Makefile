@@ -1,8 +1,18 @@
 #############
 # Variables #
 #############
-SRCDIR = /home/antograb/Documents/EURECOM/S2/DS/ds/project
+
+## TO MODIFY ##
+SRCDIR = /homes/godard/Documents/ds/project
 LIB = work
+# Here choose between Vivado (V) or Modelsim (M)
+TOOL = M
+# Entity to compile
+ENTITY = des_axi_sim
+TARGET_FILE = CRACKER_$(ENTITY)
+###############
+
+# Vivado
 VCOM = xvhdl
 VCOMFLAGS = --2008 --work $(LIB)
 VXELAB = xelab
@@ -11,9 +21,14 @@ VSIM = xsim
 VSIMFLAGS = --gui
 USER = godard
 
-# Entity to compile
-ENTITY = des_axi_sim
-TARGET_FILE = CRACKER_$(ENTITY)
+# Modelsim
+MCOM = vcom
+MCOMFLAGS = -2008 -work $(LIB)
+MSIM = vsim
+MSIMFLAGS = 
+
+COMP = $($(TOOL)COM)
+COMPFLAGS = $($(TOOL)COMFLAGS)
 
 ##############
 # Parameters #
@@ -24,18 +39,23 @@ TARGET_FILE = CRACKER_$(ENTITY)
 # Rules #
 #########
 CRACKER_%.tag : $(SRCDIR)/cracker/%.vhd 
-	$(VCOM) $(VCOMFLAGS) $<
+	$(COMP) $(COMPFLAGS) $<
 	@touch $@	
 
 DES_%.tag: $(SRCDIR)/des/%.vhd
-	$(VCOM) $(VCOMFLAGS) $<
+	$(COMP) $(COMPFLAGS) $<
 	@touch $@	
 
 all: sim
 
-sim: $(TARGET_FILE).tag 
+sim: sim_$(TOOL)
+
+sim_V: $(TARGET_FILE).tag 
 	$(VXELAB) $(VXELABFLAGS) $(LIB).$(ENTITY)
 	$(VSIM) $(VSIMFLAGS) $(LIB).$(ENTITY)
+
+sim_M: $(TARGET_FILE).tag 
+	$(MSIM) $(MSIMFLAGS) $(LIB).$(ENTITY)
 
 comp: $(TARGET_FILE).tag
 

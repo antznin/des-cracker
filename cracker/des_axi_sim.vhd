@@ -164,10 +164,6 @@ begin
 		wait until rising_edge(aclk);
 
 		while irq /='1' loop
-			-- Reading the current key continuously --
-			read_sim(aclk, x"018", s0_axi_rready, s0_axi_araddr, s0_axi_arvalid);
-			wait until rising_edge(aclk);
-			read_sim(aclk, x"01C", s0_axi_rready, s0_axi_araddr, s0_axi_arvalid);
 			wait until rising_edge(aclk);
 		end loop;
 
