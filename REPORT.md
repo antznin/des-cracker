@@ -41,14 +41,14 @@ Our source code is composed mainly of three parts :
 	   searching time by N)
    * a AXI Lite wrapper, used to communicate with the Zybo board CPU (read / write
 	   requests and an IRQ)
- * a driver, which is used by the CPU to communicate with our machine
+ * a driver, which is used by the CPU to communicate with our machine (WIP)
 
 ## Code
 
 ### DES package
 
 We initially thought of designing the DES algorithm with an entity for each element of the
-algorithm. That is, for example, an entity for each permutation, the left_shift algorithm,
+algorithm. That is, for example, an entity for each permutation, the `left_shift` algorithm,
 etc. However we realized that it wouldn't be cost-efficient in terms of electronics, and
 we knew little about the VHDL language. Thus, we quickly changed our design and we built
 *functions* for each part of the algorithm, along with *constants* for tables.
@@ -81,14 +81,17 @@ back to `std_ulogic_vector`.
 Finally, we have simulated our functions to check if they work well. To do so, we made different tests :
  * for the permutations functions IP and IIP, we use as the input of IIP the output of IP
    after these permutations the output should be identical to the initial input only if the functions work.
- * for the shift function, we just compare our input and our output to see if it has been well shifted
- * for the des function, we test the ciphering of four plaintexts with different keys (we can check if they are ciphered well thanks to a Python file we use) :
-   * in fact, with the signal des_out_true we get the real ciphered output 
-   * with the signal des_out_false we should get the same value as the input (as we decipher our cipher text)
+ * for other permutations, we cross-checked the results of the permutations by looking bit
+   by bit to make sure there wasn't an error in the constant tables or the algorithms.
+ * for the `left_shift` function, we just compared our input and our output to see if it has been properly shifted
+ * for the `des` function, we encrypted different input plaintexts with differents keys
+	 (using arrays) and cross-checked the results with an [already established and viable implementation of the algorithm](http://soc.eurecom.fr/HWSec/doc/ta/python/des.html)
+   * in fact, with the signal `des_out_true` we get the real ciphered output 
+   * with the signal `des_out_false` we should get the same value as the input (as we decipher our cipher text)
 
-![simulation de le la fonction DES](./figures/simulation-des1.png)
+   ![simulation de le la fonction DES](./figures/simulation-des1.png)
 
-Here above the simulation of the DES function
+   Here above the simulation of the DES function.
 
 
 ### DES cracker
@@ -156,13 +159,13 @@ text, the cyphertext, the starting key and the flags used for writting `k0` and 
 
 Then we have made several tests divided in two processes:
  1. In the first process :
-   * we test the signal sresetn by forcing it to zero for 10 clock cycles
-   * then, we test the machines by setting a value to the `k0` flags at random time thus it
-     should make the state machine change its state
-   * finally, we test if the cracking machines are able to find the secret key and we make the process stop
- 1. concurrently in the second process :
-  we design another process which will simulate the key requests. It will requests
-  periodically the last of the computed keys as we would do to track the progress of the cracking
+    * we test the signal `sresetn` by forcing it to zero for 10 clock cycles
+    * then, we test the machines by setting a value to the `k0` flags at random time thus it
+      should make the state machine change its state
+    * finally, we test if the cracking machines are able to find the secret key and we make the process stop
+ 1. Concurrently, in the second process :
+    we design another process which will simulate the key requests. It will requests
+    periodically the last of the computed keys as we would do to track the progress of the cracking.
 
 
 #### The AXI Lite wrapper
@@ -184,13 +187,14 @@ The second one used for read requests also is composed of two states :
 ##### The simulation
 
 Finally, to simulate our AXI we will use two processes : one for generating the clock signal and another one to test our instanciation of our entity.
+
 Here below is the description of the tests of the second process:
  1. first, we write our plaintext and ciphertext then we read their values
  1. we write the starting key and we read its value after that to be sure
  1. then as the cracking machines start running after writing the starting key, we check the current key continuously until it finds the secret key
  1. when the while loop stops and the secret key is found, we make a last read request to get the value of the secret key
 
-![simulation de l'AXI](./figures/simulation-axi1.png)
+![Simulation de l'AXI](./figures/simulation-axi1.png)
 Here above, we have a simulation of the AXI : we displayed only the most pertinent signals from the AXI, the cracker and the cracking machine. We can see
 that the first cracking machine stops when the secret key _h0000408_ is found. Thus the found signals of the AXI, the cracker and the cracking machine are set to 1, the IRQ 
 is set to 1 for one clock cycle and the cracking machine is frozen after that.
@@ -199,7 +203,7 @@ is set to 1 for one clock cycle and the cracking machine is frozen after that.
 
 To this date the driver hasn't been finished.
 
-We also encountered a bug when writing into the `k0` address space : it crashes the OS.
+Unfornatunately, we also encountered a bug when writing into the `k0` address space : it crashes the OS. We haven't been able to find the source of the problem.
 
 ## Synthesis results
 
@@ -214,13 +218,13 @@ machines vary one by one.
 
 The final results led to these parameters :
  * `N` = 12 : 12 machines can run in parallel without using all the available space. By
- 	looking at the utilization report we use around 98% of the card ;
+ 	looking at the [utilization report] we use around 98% of the card ;
  * `frequency_mhz` = 20.7 : the maximum frequency we can get is 20.7 MHz. With this
- 	parameter we got a Worst Negative Slack of 0.1
+ 	parameter we got a Worst Negative Slack of 0.1 by looking at the [timing report]
 
 ## Conclusion
 
-Our choice of architecture was to do a full encryption per clock cycles. It has been revealed
+Our choice of architecture was to do a full encryption per clock cycles. It was revealed
 thanks to other groups doing the same project that this may not be the best approach. We
 could have done two things to improve our cracker :
  * optimize the functions and the register usage in our code to instanciate more machines
@@ -237,3 +241,5 @@ could have done two things to improve our cracker :
 [des_types_pkg.vhd]: ./des/des_types_pkg.vhd
 [des_body_pkg.vhd]: ./des/des_body_pkg.vhd
 [synthesis script]: ./des_cracker_axi_wrapper.syn.tcl
+[utilization report]: ./synthesis/axi.utilization.rpt
+[timing report]: ./synthesis/axi.timing.rpt
