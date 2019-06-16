@@ -28,11 +28,11 @@ Let us first remind the objectives of the project as defined in [des_cracker.md]
 >
 > The cracking machine will communicate with the CPU using the AXI4 lite interface.
 
-Our source code is composed mainly of three parts :
- * the DES package - which is used for encryption and decryption - is composed of
+Our source code is composed mainly of four parts :
+ * `./des` : the DES package - which is used for encryption and decryption - is composed of
 	 combinatorial functions and constants, each representing a single module of the DES algorithm as
 	 detailed in the [DES standard].
- * the cracker itself, represented in a hierarchical manner, that is from bottom level
+ * `./cracker` the cracker itself, represented in a hierarchical manner, that is from bottom level
      to top level :
    * a cracking machine, used only to do a search of the private key. It uses the `des`
 	   function of the DES package
@@ -41,7 +41,8 @@ Our source code is composed mainly of three parts :
 	   searching time by N)
    * a AXI Lite wrapper, used to communicate with the Zybo board CPU (read / write
 	   requests and an IRQ)
- * a driver, which is used by the CPU to communicate with our machine (WIP)
+ * `./synthesis` : a synthesis script along with a log and timing/utilization reports
+ * `./driver` : a driver, which is used by the CPU to communicate with our machine (WIP)
 
 ## Code
 
@@ -89,7 +90,7 @@ Finally, we have simulated our functions to check if they work well. To do so, w
    * in fact, with the signal `des_out_true` we get the real ciphered output 
    * with the signal `des_out_false` we should get the same value as the input (as we decipher our cipher text)
 
-   ![simulation de le la fonction DES](./figures/simulation-des1.png)
+   ![DES function simulation results](./figures/simulation-des1.png)
 
    Here above the simulation of the DES function.
 
@@ -171,8 +172,9 @@ Then we have made several tests divided in two processes:
 #### The AXI Lite wrapper
 
 The purpose of the AXI Lite Wrapper is to enable the CPU to communicate with the cracker.
-It instanciates and maps one controller. Furthermore, it has three main purposes : it handles the IRQ request,
-it uses two state machines; one for the write requests and another one for the read requests.
+It instanciates and maps one controller. Furthermore, it has three main purposes : it
+handles the IRQ request, it uses two state machines; one for the write requests and
+another one for the read requests.
 
 The first state machine used for the write requests is composed of two states :
  * when the slave is ready, the machine goes from `waiting` to `running`
@@ -186,24 +188,31 @@ The second one used for read requests also is composed of two states :
 
 ##### The simulation
 
-Finally, to simulate our AXI we will use two processes : one for generating the clock signal and another one to test our instanciation of our entity.
+Finally, to simulate our AXI we will use two processes : one for generating the clock
+signal and another one to test our instanciation of our entity.
 
 Here below is the description of the tests of the second process:
  1. first, we write our plaintext and ciphertext then we read their values
  1. we write the starting key and we read its value after that to be sure
- 1. then as the cracking machines start running after writing the starting key, we check the current key continuously until it finds the secret key
- 1. when the while loop stops and the secret key is found, we make a last read request to get the value of the secret key
+ 1. then as the cracking machines start running after writing the starting key, we check
+	the current key continuously until it finds the secret key
+ 1. when the while loop stops and the secret key is found, we make a last read request to
+	get the value of the secret key
 
-![Simulation de l'AXI](./figures/simulation-axi1.png)
-Here above, we have a simulation of the AXI : we displayed only the most pertinent signals from the AXI, the cracker and the cracking machine. We can see
-that the first cracking machine stops when the secret key _h0000408_ is found. Thus the found signals of the AXI, the cracker and the cracking machine are set to 1, the IRQ 
-is set to 1 for one clock cycle and the cracking machine is frozen after that.
+![AXI simulation results](./figures/simulation-axi1.png)
+
+Here above, we have a simulation of the AXI : we displayed only the most pertinent signals
+from the AXI, the cracker and the cracking machine. We can see that the first cracking
+machine stops when the secret key _h0000408_ is found. Thus the found signals of the AXI,
+the cracker and the cracking machine are set to 1, the IRQ is set to 1 for one clock cycle
+and the cracking machine is frozen after that.
 
 ### Driver
 
 To this date the driver hasn't been finished.
 
-Unfornatunately, we also encountered a bug when writing into the `k0` address space : it crashes the OS. We haven't been able to find the source of the problem.
+Unfornatunately, we also encountered a bug when writing into the `k0` address space : it
+crashes the OS. We haven't been able to find the source of the problem.
 
 ## Synthesis results
 
