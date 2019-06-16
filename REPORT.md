@@ -90,7 +90,7 @@ Finally, we have simulated our functions to check if they work well. To do so, w
    * in fact, with the signal `des_out_true` we get the real ciphered output 
    * with the signal `des_out_false` we should get the same value as the input (as we decipher our cipher text)
 
-   ![DES function simulation results](./figures/simulation-des1.png)
+   ![DES function simulation results](./doc/simulation-des1.png)
 
    Here above the simulation of the DES function.
 
@@ -102,11 +102,13 @@ Finally, we have simulated our functions to check if they work well. To do so, w
 The cracking machine represents the core or the cracking process.
 
 It is given a plaintext p and a ciphertext c and looks for the corresponding encryption key.
-It uses a simple state machine composed of two states :
+It uses a simple *Mealy* state machine composed of two states :
  * `FROZEN` : the machine is frozen and thus does nothing and waits for `k0_mw` to be set
  * `RUNNING` : the machine runs, and thus computes the DES encryption of a current key (dynamic)
    and compares its output with p. The current key is incremented by N, a generic parameter,
    allowing multiples instances of this entity to search for the key.
+
+![Cracking machine state machine](./doc/fsm_cm.gif)
 
 The state machine is driven by two signals :
  * `k0_lw` : when the least significant bits of `k0` are written, the machine goes from
@@ -141,12 +143,14 @@ does step by step :
 The controller represents the interface between the AXI wrapper and the cracking machine.
 It has two purposes: the controller generates N machines and sends them the starting keys.
 
-It also allows us to read the current key requested with a simple state machine of two
+It also allows us to read the current key requested with a simple *Moore* state machine of two
 states :
  * `UPDATING` : in this state the `k_req` signal is always assigned the value of
 	 `current_k` at each clock cycle
  * `FREEZE` : in this state the `k_req` signal is frozen (nothing is assigned to it) and
 	 waits for the transaction between the CPU and the slave to be finished
+
+![k_req state machine](./doc/fsm_kreq.gif)
 
 The machine is driven by two signals :
  * `k_lr` : when the least significant bits of `k` are read, the machine goes from UPDATING to FREEZE
@@ -173,18 +177,22 @@ Then we have made several tests divided in two processes:
 
 The purpose of the AXI Lite Wrapper is to enable the CPU to communicate with the cracker.
 It instanciates and maps one controller. Furthermore, it has three main purposes : it
-handles the IRQ request, it uses two state machines; one for the write requests and
+handles the IRQ request, it uses two *Mealy* state machines; one for the write requests and
 another one for the read requests.
 
 The first state machine used for the write requests is composed of two states :
  * when the slave is ready, the machine goes from `waiting` to `running`
  * when the data and the write address have been considered as valid, the CPU writes
    into the slave and the machine goes from `running` to `waiting`
+ 
+   ![AXI write request machines](./doc/fsm_axi_write.gif)
 
 The second one used for read requests also is composed of two states :
  * when the slave is ready, the machine goes from `waiting` to `running`
  * when the read address has been considered as valid, the CPU reads
    the data in the slave and the machine goes from `running` to `waiting`
+
+   ![AXI read request machines](./doc/fsm_axi_read.gif)
 
 ##### The simulation
 
@@ -199,7 +207,7 @@ Here below is the description of the tests of the second process:
  1. when the while loop stops and the secret key is found, we make a last read request to
 	get the value of the secret key
 
-![AXI simulation results](./figures/simulation-axi1.png)
+![AXI simulation results](./doc/simulation-axi1.png)
 
 Here above, we have a simulation of the AXI : we displayed only the most pertinent signals
 from the AXI, the cracker and the cracking machine. We can see that the first cracking
